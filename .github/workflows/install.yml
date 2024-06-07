@@ -6,6 +6,7 @@ on:
     branches:
       - main
 
+
 env:
   USER_CNT_NAME: "ansible"
 
