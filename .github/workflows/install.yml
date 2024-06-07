@@ -13,7 +13,6 @@ on:
       - main
 
 env:
-
   USER_CNT_NAME: "ansible"
 
 jobs:
