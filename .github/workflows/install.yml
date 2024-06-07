@@ -1,7 +1,6 @@
 name: Test Ansible install playbook
 
 on:
-  workflow_dispatch:
   pull_request:
     types:
       - opened
@@ -9,11 +8,8 @@ on:
       - reopened
       - ready_for_review
       - synchronize
-    branches:
-      - main
 
 env:
-
   USER_CNT_NAME: "ansible"
 
 jobs:
