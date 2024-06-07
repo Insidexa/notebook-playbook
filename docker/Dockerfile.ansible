@@ -1,0 +1,21 @@
+FROM alpine:latest
+
+ARG USER
+ENV HOME=/home/$USER
+
+RUN apk add --update --no-cache bash openssh-client git python3 py3-pip && \
+    addgroup -g 1000 ansible && \
+    adduser -u 1000 -G ansible -s /bin/bash -D $USER && \
+    echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    chmod 0440 /etc/sudoers && \
+    echo export PATH=$PATH:/home/ansible/.local/bin >> /etc/profile && \
+    mkdir -p $HOME/.ssh && \
+    mkdir -p $HOME/.ssh && \
+    mkdir -p $HOME/playbook && \
+    chown -R $USER:$USER $HOME
+
+USER $USER
+
+RUN pip install ansible ansible-core
+
+WORKDIR $HOME/playbook

@@ -1,0 +1,8 @@
+python -V
+sudo dnf update -y
+sudo dnf upgrade -y
+sudo dnf install ansible -y
+
+sudo dnf install python3-pip -y
+pip3 install ansible-lint packaging
+ansible-galaxy install -r requirements.yml

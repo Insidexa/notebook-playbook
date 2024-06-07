@@ -1,0 +1,21 @@
+- name: Install common packages
+  block:
+    - name: install dev tools
+      become: true
+      ansible.builtin.command: yum groupinstall "Development Tools" -y
+
+    - name: via package manager
+      become: true
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ packages }}"
+
+    - name: Ensure setuptools and packaging are installed using command
+      ansible.builtin.command: python3 -m pip install --upgrade packaging
+
+    - name: pip packages
+      ansible.builtin.pip:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ pip_packages }}"

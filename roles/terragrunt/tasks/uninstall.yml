@@ -1,0 +1,9 @@
+
+- name: Uninstall Terragrunt
+  block:
+    - name: Remove files
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ dest_path }}"

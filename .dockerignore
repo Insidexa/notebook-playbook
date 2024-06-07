@@ -1,0 +1,6 @@
+.vscode/
+hosts
+docker/Dockerfile*
+docker/config/
+docker/keys/ansible
+*.sh

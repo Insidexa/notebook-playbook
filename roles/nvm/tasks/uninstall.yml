@@ -1,0 +1,27 @@
+- name: Uninstall
+  block:
+    - name: Remove unused files
+      file:
+        path: '{{ user_home }}/{{ item }}'
+        state: absent
+        force: true
+      with_items:
+        - .yarn
+        - .nvm
+        - .npm
+        - .cache/yarn
+        - .cache/typescript
+        - .yarnrc
+
+    - name: check if .zshrc file exists
+      ansible.builtin.stat:
+        path: "{{ user_home }}/.zshrc"
+      register: zshrc
+
+    - name: remove NVM from .zshrc
+      ansible.builtin.blockinfile:
+        marker_begin: "NVM START"
+        marker_end: "NVM END"
+        path: "{{ user_home }}/.zshrc"
+        state: absent
+      when: zshrc.stat.exists

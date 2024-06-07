@@ -1,0 +1,63 @@
+- name: Install ZSH
+  block:
+    - name: Install ZSH
+      become: true
+      ansible.builtin.package:
+        name: zsh
+        state: present
+
+    - name: Set ZSH as default shell
+      become: true
+      ansible.builtin.user:
+        name: "{{ ansible_user_id }}"
+        shell: "{{ zsh_binary }}"
+      ignore_errors: true
+
+- name: Is ZSH installed
+  stat:
+    path: "{{ user_home }}/{{ omz_dir_name }}"
+  register: omz_path
+
+- name: Install OMZ
+  when: not omz_path.stat.exists
+  block:
+    - name: Create temporary file
+      ansible.builtin.tempfile:
+        state: file
+      register: oh_my_zsh_install_script
+
+    - name: Download installer
+      ansible.builtin.get_url:
+        url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: "{{ oh_my_zsh_install_script.path }}"
+        mode: "0755"
+
+    - name: Install OMZ
+      ansible.builtin.command: "{{ oh_my_zsh_install_script.path }} --unattended"
+
+    - name: Remove the temporary file
+      ansible.builtin.file:
+        path: "{{ oh_my_zsh_install_script.path }}"
+        state: absent
+      when: oh_my_zsh_install_script.path is defined
+
+- name: OMZ config
+  block:
+    - name: Write .zshrc
+      become_user: "{{ ansible_env.USER }}"
+      ansible.builtin.template:
+        src: .zshrc.j2
+        dest: "{{ user_home }}/.zshrc"
+        mode: "u=rw,go=r"
+        force: false
+
+    - name: add $HOME/.local/bin to zsh
+      ansible.builtin.blockinfile:
+        block: |
+          export PATH="$PATH:$HOME/{{ local_bin_dir }}/"
+        create: yes
+        marker_begin: "LOCAL BINARY START"
+        marker_end: "LOCAL BINARY END"
+        mode: 0644
+        path: "{{ user_home }}/.zshrc"
+        state: present

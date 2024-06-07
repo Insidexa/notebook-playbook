@@ -1,0 +1,10 @@
+
+- name: Uninstall kubectl
+  block:
+    - name: Remove kubectl
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ kubectl_bin_directory }}/kubectl"
+        - "{{ user_home }}/.kube"

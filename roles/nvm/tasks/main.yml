@@ -1,0 +1,13 @@
+- block:
+    - name: Install NVM & NodeJS
+      include_tasks: install.yml
+  tags:
+    - nvm_install
+    - install
+
+- block:
+    - name: Uninstall NVM & NodeJS
+      include_tasks: uninstall.yml
+  tags:
+    - nvm_uninstall
+    - uninstall

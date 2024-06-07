@@ -1,0 +1,27 @@
+
+- name: Install AWS
+  block:
+    - name: Check if AWS CLI is installed
+      stat:
+        path: /usr/local/bin/aws
+      register: aws_cli_installed
+
+    - name: Download AWS CLI installer
+      ansible.builtin.get_url:
+        url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+        dest: "/tmp/awscliv2.zip"
+      when: aws_cli_installed.stat.exists == False
+
+    - name: Unzip AWS CLI installer
+      unarchive:
+        src: "/tmp/awscliv2.zip"
+        dest: "/tmp/"
+        remote_src: yes
+      when: aws_cli_installed.stat.exists == False
+
+    - name: Run AWS CLI installer
+      command: "sudo /tmp/aws/install"
+      when: aws_cli_installed.stat.exists == False
+
+    - name: AWS version
+      command: "aws --version"

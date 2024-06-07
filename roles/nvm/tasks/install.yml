@@ -1,0 +1,31 @@
+- name: Install
+  block:
+    - name: Install NVM
+      ansible.builtin.shell: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_ver }}/install.sh | bash"
+      args:
+        creates: "{{ nvm_dir_path }}/nvm.sh"
+
+    - name: Add NVM to nvm_profile
+      ansible.builtin.blockinfile:
+        block: |
+          export NVM_DIR="$HOME/{{ nvm_dir_name }}"
+          [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
+        marker_begin: "NVM START"
+        marker_end: "NVM END"
+        mode: 0644
+        path: "{{ user_home }}/.zshrc"
+        state: present
+
+    - name: Check version
+      ansible.builtin.shell:
+        cmd: "{{ zsh_shell_cmd }} 'nvm --version'"
+
+- name: "Install {{ node_ver }} NodeJS"
+  block:
+    - name: install
+      ansible.builtin.shell:
+        cmd: "{{ zsh_shell_cmd }} 'nvm install {{ node_ver }}' "
+
+    - name: use
+      ansible.builtin.shell:
+        cmd: "{{ zsh_shell_cmd }} 'nvm use {{ node_ver }}'"

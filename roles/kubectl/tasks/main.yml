@@ -1,0 +1,14 @@
+
+- block:
+    - name: Kubectl installation tasks
+      include_tasks: install.yml
+  tags:
+    - kubectl_install
+    - install
+
+- block:
+    - name: Kubectl uninstallation tasks
+      include_tasks: uninstall.yml
+  tags:
+    - kubectl_uninstall
+    - uninstall

@@ -1,0 +1,17 @@
+
+- name: Uninstall AWS CDK
+  block:
+    - name: Remove unused files
+      file:
+        path: '{{ user_home }}/{{ item }}'
+        state: absent
+        force: true
+      with_items:
+        - .dotnet
+
+# error because zsh uninstalled before
+    # - name: Uninstall typescript
+    #   ansible.builtin.shell: "{{ zsh_shell_cmd }} 'npm uninstall -g typescript'"
+
+    # - name: Uninstall AWS CDK
+    #   ansible.builtin.shell: "{{ zsh_shell_cmd }} 'npm uninstall -g aws-cdk'"

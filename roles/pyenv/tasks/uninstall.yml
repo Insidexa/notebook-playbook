@@ -1,0 +1,24 @@
+- name: Uninstall Pyenv
+  block:
+    - name: Remove pyenv directory
+      file:
+        path: '{{ user_home }}/.pyenv/'
+        state: absent
+
+    - name: check if .zshrc file exists
+      ansible.builtin.stat:
+        path: "{{ user_home }}/.zshrc"
+      register: zshrc
+
+    - name: remove Pyenv from .zshrc
+      ansible.builtin.blockinfile:
+        marker_begin: "PYENV START"
+        marker_end: "PYENV END"
+        path: "{{ user_home }}/.zshrc"
+        state: absent
+      when: zshrc.stat.exists
+
+    - name: Remove pyenv history
+      file:
+        path: '{{ user_home }}/.python_history'
+        state: absent

@@ -1,0 +1,10 @@
+
+- name: Uninstall Podman Compose
+  block:
+    - name: remove file
+      file:
+        path: '{{ user_home }}/{{ item }}'
+        state: absent
+        force: true
+      with_items:
+        - "{{ dest_path }}"

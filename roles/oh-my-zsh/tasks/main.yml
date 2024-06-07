@@ -1,0 +1,13 @@
+- block:
+    - name: Install ZSH & OMZ
+      include_tasks: install.yml
+  tags:
+    - omz_install
+    - install
+
+- block:
+    - name: Uninstall ZSH & OMZ
+      include_tasks: uninstall.yml
+  tags:
+    - omz_uninstall
+    - uninstall

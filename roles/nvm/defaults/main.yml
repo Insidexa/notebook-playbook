@@ -1,0 +1,5 @@
+nvm_ver: "0.39.7"
+nvm_dir_name: ".nvm"
+nvm_dir_path: "{{ user_home }}/{{ nvm_dir_name }}"
+
+node_ver: "--lts"

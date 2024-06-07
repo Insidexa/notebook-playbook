@@ -1,0 +1,15 @@
+
+- name: Uninstall AWS cli
+  block:
+    - name: Remove AWS CLI symlinks
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "/usr/local/bin/aws"
+        - "/usr/local/bin/aws_completer"
+
+    - name: Remove AWS CLI directory
+      file:
+        path: "/usr/local/aws-cli"
+        state: absent

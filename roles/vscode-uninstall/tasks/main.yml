@@ -1,0 +1,6 @@
+- block:
+    - name: Uninstall VSCode
+      include_tasks: uninstall.yml
+  tags:
+    - vscode_uninstall
+    - uninstall

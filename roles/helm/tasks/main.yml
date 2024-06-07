@@ -1,0 +1,14 @@
+
+- block:
+    - name: Helm installation tasks
+      include_tasks: install.yml
+  tags:
+    - helm_install
+    - install
+
+- block:
+    - name: Helm uninstallation tasks
+      include_tasks: uninstall.yml
+  tags:
+    - helm_uninstall
+    - uninstall

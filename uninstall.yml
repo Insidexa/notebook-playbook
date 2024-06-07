@@ -1,0 +1,36 @@
+---
+- name: Install & Uninstall
+  hosts: localhost
+  gather_facts: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  roles:
+    # priority
+    - role: oh-my-zsh
+
+    - role: awscdk
+
+    - role: nvm
+
+    # any order
+    - role: awscli
+      become: true
+
+    - role: kubectl
+      become: true
+
+    - role: helm
+      become: true
+
+    - role: terragrunt
+
+    - role: terraform
+
+    - role: podman-compose
+
+    - role: pyenv
+
+    - role: vscode-uninstall
+
+    - role: common

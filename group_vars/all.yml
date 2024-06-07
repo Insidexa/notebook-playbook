@@ -1,0 +1,5 @@
+user_home: "{{ ansible_env.HOME }}"
+zsh_binary: "/bin/zsh"
+zsh_shell_cmd: "{{ zsh_binary }} -ic"
+
+local_bin_dir: ".local/bin"

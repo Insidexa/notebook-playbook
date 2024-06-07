@@ -1,0 +1,54 @@
+- name: Uninstall
+  block:
+    - name: Set Bash as default shell
+      become: true
+      ansible.builtin.user:
+        name: "{{ ansible_user_id }}"
+        shell: /bin/bash
+      ignore_errors: true
+
+    - name: Remove OMZ
+      ansible.builtin.file:
+        path: '{{ user_home }}/{{ item }}/'
+        state: absent
+      with_items:
+        - "{{ omz_dir_name }}"
+
+    - name: Remove unused files
+      file:
+        path: '{{ user_home }}/{{ item }}'
+        state: absent
+        force: true
+      with_items:
+        - .zsh_history
+        - .zshrc.pre-oh-my-zsh
+        - .zshrc
+
+    - name: Find files matching multiple wildcard patterns
+      ansible.builtin.find:
+        paths: "{{ user_home }}/"
+        patterns: 
+          - .zshrc.omz-uninstalled-*
+          - .zcompdump-*
+      register: file_patterns_to_delete
+
+    - name: Delete the files matching the wildcard patterns
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ file_patterns_to_delete.files }}"
+
+    - name: Uninstall ZSH
+      become: true
+      ansible.builtin.package:
+        name: zsh
+        state: absent
+
+    - name: remove /usr/share/zsh
+      become: true
+      file:
+        path: '{{ item }}'
+        state: absent
+        force: true
+      with_items:
+        - /usr/share/zsh
