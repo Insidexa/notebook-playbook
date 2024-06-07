@@ -20,6 +20,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: ls
+        run: ls -lah
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
