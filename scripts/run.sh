@@ -13,8 +13,6 @@ fi
 podman build -t playbook_playground --build-arg USER=$USER_CNT_NAME -f docker/Dockerfile.dest .
 podman build -t playbook_ansible --build-arg USER=$USER_CNT_NAME -f docker/Dockerfile.ansible .
 
-#   -v $PROJECT_DIR/docker/keys/ansible.pub:/home/$USER_CNT_NAME/.ssh/authorized_keys:Z \
-
 podman run \
   --detach \
   --name=playground \

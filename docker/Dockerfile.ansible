@@ -2,8 +2,9 @@ FROM alpine:latest
 
 ARG USER
 ENV HOME=/home/$USER
+ENV PATH="/opt/venv/bin:$PATH"
 
-RUN apk add --update --no-cache bash openssh-client git python3 py3-pip && \
+RUN apk add --update --no-cache bash openssh-client git python3 py3-pip python3-dev libffi-dev musl-dev openssl-dev gcc make && \
     addgroup -g 1000 ansible && \
     adduser -u 1000 -G ansible -s /bin/bash -D $USER && \
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
@@ -14,8 +15,10 @@ RUN apk add --update --no-cache bash openssh-client git python3 py3-pip && \
     mkdir -p $HOME/playbook && \
     chown -R $USER:$USER $HOME
 
-USER $USER
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install ansible ansible-core
 
-RUN pip install ansible ansible-core
+USER $USER
 
 WORKDIR $HOME/playbook
