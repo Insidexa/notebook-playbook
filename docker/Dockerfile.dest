@@ -11,9 +11,6 @@ RUN dnf update -y && dnf install sudo openssh-server python3 python3-pip inotify
     ssh-keygen -A && \
     pip install packaging setuptools
 
-COPY docker/config/sshd_config /etc/ssh/sshd_config
-COPY --chown=${USER}:${USER} docker/keys/ansible.pub ${HOME}/.ssh/authorized_keys
-
 WORKDIR $HOME
 
 CMD [ "/usr/sbin/sshd", "-D", "-e" ]

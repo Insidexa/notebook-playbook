@@ -24,6 +24,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: whoami ga
+        run: whoami
+
       - name: Build dest image
         run: |
           docker build \
@@ -49,6 +52,8 @@ jobs:
             -d \
             --network $NET_NAME \
             --network-alias playground \
+            -v ./docker/config/sshd_config:/etc/ssh/sshd_config:Z,ro \
+            -v ./docker/keys/ansible.pub:$HOME_DIR/.ssh/authorized_keys:Z,ro \
             --name playground \
             playbook_playground
 
@@ -58,6 +63,11 @@ jobs:
             --rm \
             -d \
             --name ansible \
+            -v ./docker/config/ansible.cfg:/etc/ansible/ansible.cfg:ro \
+            -v ./playbook/:$HOME_DIR/playbook/:Z,ro \
+            -v ./scripts/:$HOME_DIR/scripts/:Z,ro \
+            -v ./docker/config/ssh_config:$HOME_DIR/.ssh/config:Z,ro \
+            -v ./docker/keys/ansible:$HOME_DIR/.ssh/id_rsa:Z,ro \
             --network $NET_NAME --network-alias ansible \
             playbook_ansible sleep infinity
 
