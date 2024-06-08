@@ -1,4 +1,4 @@
-FROM fedora
+FROM fedora:40
 
 ARG USER
 ENV HOME=/home/$USER
