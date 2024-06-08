@@ -26,11 +26,14 @@ jobs:
       - name: Build dest image
         run: docker build -t playbook_playground --build-arg USER=$USER_CNT_NAME -f docker/Dockerfile.dest .
 
-      # - name: Build source image
-      #   run: docker build -t playbook_ansible --build-arg USER=$USER_CNT_NAME -f docker/Dockerfile.ansible .
+      - name: Build source image
+        run: docker build -t playbook_ansible --build-arg USER=$USER_CNT_NAME -f docker/Dockerfile.ansible .
 
       - name: Run dest
-        run: docker run -d --name playground -p 8000:80 -u root playbook_playground
+        run: docker run -d --name playground playbook_playground
 
-      - name: Run command in Docker container
-        run: docker exec playground bash -c "echo 'Hello from inside the container!'"
+      - name: Run source
+        run: docker run -d --name ansible playbook_ansible
+
+      - name: Run install playbook
+        run: docker exec ansible bash -c "./scripts/install.sh"
