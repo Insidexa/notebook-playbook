@@ -1,4 +1,4 @@
-name: Test Ansible install playbook
+name: Ansible tests
 
 on:
   pull_request:
@@ -15,7 +15,19 @@ env:
   HOME_DIR: "/home/ansible"
 
 jobs:
-  build-and-run:
+  lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@main
+        with:
+          working_directory: ./playground
+
+  e2e:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,6 +39,12 @@ jobs:
 
       - name: whoami ga
         run: whoami
+
+      - name: prepare
+        run: |
+          # chmod 400 ./docker/keys/ansible
+          # chmod 600 ./docker/keys/ansible.pub
+          chmod 600 ./docker/config/ssh_config
 
       - name: Build dest image
         run: |
