@@ -18,7 +18,6 @@ podman run \
   --name=playground \
   --net $NETWORK_NAME \
   --network-alias playground \
-  -p 8000:80 \
   -u root \
   playbook_playground
 
@@ -27,10 +26,6 @@ podman run \
   --name=ansible \
   --userns=keep-id \
   --requires=playground \
-  -v $PROJECT_DIR:/home/ansible/playbook:Z \
-  -v $PROJECT_DIR/docker/config/ansible.cfg:/etc/ansible/ansible.cfg:Z \
-  -v $PROJECT_DIR/docker/config/ssh_config:/home/$USER_CNT_NAME/.ssh/config:Z,ro \
-  -v $PROJECT_DIR/docker/keys/ansible:/home/$USER_CNT_NAME/.ssh/id_rsa:Z,ro \
   --net $NETWORK_NAME \
   --network-alias ansible \
   playbook_ansible \
