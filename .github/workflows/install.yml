@@ -33,7 +33,16 @@ jobs:
         run: docker run -d --name playground playbook_playground
 
       - name: Run source
-        run: docker run -d --name ansible playbook_ansible
+        run: |
+          docker run \
+            --rm \
+            -d \
+            -v ./:/home/ansible/playbook:Z \
+            -v ./docker/config/ansible.cfg:/etc/ansible/ansible.cfg:Z \
+            -v ./docker/config/ssh_config:/home/$USER_CNT_NAME/.ssh/config:Z,ro \
+            -v ./docker/keys/ansible:/home/$USER_CNT_NAME/.ssh/id_rsa:Z,ro \
+            --name ansible \
+            playbook_ansible sleep infinity
 
       - name: Run install playbook
         run: docker exec ansible bash -c "./scripts/install.sh"
