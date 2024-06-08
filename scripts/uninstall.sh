@@ -1,4 +1,5 @@
 #!/bin/bash
 
 source /etc/profile
-ansible-playbook -vvv uninstall.yml -i hosts/docker --tags "uninstall"
+cd ./playbook
+ansible-playbook -vv uninstall.yml -i hosts/docker --tags "uninstall"

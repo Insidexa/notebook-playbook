@@ -2,20 +2,32 @@ FROM alpine:latest
 
 ARG USER
 ENV HOME=/home/$USER
+ENV PATH="/opt/venv/bin:$PATH"
 
-RUN apk add --update --no-cache bash openssh-client git python3 py3-pip && \
+RUN apk add --update --no-cache bash openssh-client git python3 py3-pip python3-dev libffi-dev musl-dev openssl-dev gcc make && \
     addgroup -g 1000 ansible && \
     adduser -u 1000 -G ansible -s /bin/bash -D $USER && \
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chmod 0440 /etc/sudoers && \
-    echo export PATH=$PATH:/home/ansible/.local/bin >> /etc/profile && \
+    echo export PATH=$PATH:$HOME/.local/bin >> /etc/profile && \
     mkdir -p $HOME/.ssh && \
     mkdir -p $HOME/.ssh && \
-    mkdir -p $HOME/playbook && \
     chown -R $USER:$USER $HOME
+
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install ansible ansible-core
+
+COPY ./docker/config/ansible.cfg /etc/ansible/ansible.cfg
+
+COPY --chown=${USER}:${USER} ./playbook/ $HOME/playbook/
+COPY --chown=${USER}:${USER} ./scripts/ $HOME/scripts/
+
+COPY --chown=${USER}:${USER} ./docker/config/ssh_config $HOME/.ssh/config
+COPY --chown=${USER}:${USER} ./docker/keys/ansible $HOME/.ssh/id_rsa
 
 USER $USER
 
-RUN pip install ansible ansible-core
+RUN chmod 400 $HOME/.ssh/id_rsa
 
-WORKDIR $HOME/playbook
+WORKDIR $HOME/

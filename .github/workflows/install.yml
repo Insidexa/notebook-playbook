@@ -1,7 +1,6 @@
 name: Test Ansible install playbook
 
 on:
-  workflow_dispatch:
   pull_request:
     types:
       - opened
@@ -9,12 +8,10 @@ on:
       - reopened
       - ready_for_review
       - synchronize
-    branches:
-      - main
 
 env:
-
   USER_CNT_NAME: "ansible"
+  NET_NAME: "ansible_bridge"
 
 jobs:
   build-and-run:
@@ -25,16 +22,50 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Build dest image
-        run: docker build -t playbook_playground --build-arg USER=$USER_CNT_NAME -f docker/Dockerfile.dest .
+        run: |
+          docker build \
+            -t playbook_playground \
+            --build-arg USER=$USER_CNT_NAME \
+            -f docker/Dockerfile.dest \
+            .
 
-      # - name: Build source image
-      #   run: podman build -t playbook_ansible --build-arg USER=$USER_CNT_NAME -f docker/Dockerfile.ansible .
+      - name: Build source image
+        run: |
+          docker build \
+            -t playbook_ansible \
+            --build-arg USER=$USER_CNT_NAME \
+            -f docker/Dockerfile.ansible \
+            .
+
+      - name: create docker network
+        run: docker network create $NET_NAME
 
       - name: Run dest
-        run: docker run -d --name playground -p 8000:80 -u root playbook_playground
+        run: |
+          docker run \
+            -d \
+            --network $NET_NAME \
+            --network-alias playground \
+            --name playground \
+            playbook_playground
 
-      - name: Run command in Docker container
-        run: docker exec playground bash -c "echo 'Hello from inside the container!'"
+      - name: Run source
+        run: |
+          docker run \
+            --rm \
+            -d \
+            --name ansible \
+            --network $NET_NAME --network-alias ansible \
+            playbook_ansible sleep infinity
+
+      - name: check ssh connection
+        run: docker exec ansible bash -c "ssh ansible@playground -- 'whoami'"
+
+      - name: Run install playbook
+        run: docker exec ansible bash -c "./scripts/install.sh"
+
+      - name: Run uninstall playbook
+        run: docker exec ansible bash -c "./scripts/uninstall.sh"
