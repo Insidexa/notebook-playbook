@@ -12,6 +12,7 @@ on:
 env:
   USER_CNT_NAME: "ansible"
   NET_NAME: "ansible_bridge"
+  HOME_DIR: "/home/ansible"
 
 jobs:
   build-and-run:
