@@ -44,5 +44,8 @@ jobs:
             --name ansible \
             playbook_ansible sleep infinity
 
+      - name: check ssh connection
+        run: docker exec ansible bash -c "ssh ansible@localhost -- 'whoami'"
+
       - name: Run install playbook
         run: docker exec ansible bash -c "./scripts/install.sh"
