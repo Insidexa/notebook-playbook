@@ -28,6 +28,6 @@
 
     - name: Delete dev tools
       become: true
-      ansible.builtin.command: yum groupremove "Development Tools" -y
-      register: delete_dev_pkgs_output
-      changed_when: delete_dev_pkgs_output.rc != 0
+      ansible.builtin.yum:
+        name: "@Development Tools"
+        state: absent

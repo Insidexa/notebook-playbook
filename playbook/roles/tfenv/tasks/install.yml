@@ -9,10 +9,11 @@
 
   block:
     - name: Clone tfenv
-      ansible.builtin.command:
-        cmd: git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv
-      register: clone_tfenv_repo_output
-      changed_when: clone_tfenv_repo_output.rc != 0
+      ansible.builtin.git:
+        repo: https://github.com/tfutils/tfenv.git
+        clone: yes
+        dest: ~/.tfenv
+        depth: 1
 
     - name: Add tfenv to .zshrc
       ansible.builtin.blockinfile:

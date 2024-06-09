@@ -3,9 +3,9 @@
   block:
     - name: Install dev tools
       become: true
-      ansible.builtin.command: yum groupinstall "Development Tools" -y
-      register: install_dev_pkgs_output
-      changed_when: install_dev_pkgs_output.rc != 0
+      ansible.builtin.yum:
+        name: "@Development Tools"
+        state: present
 
     - name: Via package manager
       become: true
