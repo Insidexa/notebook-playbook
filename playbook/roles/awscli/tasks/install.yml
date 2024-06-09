@@ -10,7 +10,6 @@
       ansible.builtin.get_url:
         url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
         dest: /tmp/awscliv2.zip
-        mode: '0644'
       when: not aws_cli_installed.stat.exists
 
     - name: Unzip AWS CLI installer
