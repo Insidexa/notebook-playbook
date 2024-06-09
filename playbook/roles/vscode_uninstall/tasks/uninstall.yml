@@ -39,7 +39,7 @@
 
     - name: Update the YUM package list
       become: true
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: "*"
         state: latest
         update_cache: true

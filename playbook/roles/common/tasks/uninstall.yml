@@ -28,6 +28,6 @@
 
     - name: Delete dev tools
       become: true
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: "@Development Tools"
         state: absent
