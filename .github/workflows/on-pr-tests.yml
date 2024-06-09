@@ -1,4 +1,4 @@
-name: Test Ansible install playbook
+name: Tests checks
 
 on:
   pull_request:
@@ -12,9 +12,10 @@ on:
 env:
   USER_CNT_NAME: "ansible"
   NET_NAME: "ansible_bridge"
+  HOME_DIR: "/home/ansible"
 
 jobs:
-  build-and-run:
+  e2e:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,46 +25,53 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build dest image
+      - name: Generate kp
+        run: ssh-keygen -t rsa -b 4096 -C "ansible" -f ./docker/keys/id_rsa -N ""
+
+      - name: Build playground image
         run: |
           docker build \
             -t playbook_playground \
             --build-arg USER=$USER_CNT_NAME \
+            --build-arg UID=$UID \
             -f docker/Dockerfile.dest \
             .
 
-      - name: Build source image
+      - name: Build ansible image
         run: |
           docker build \
             -t playbook_ansible \
             --build-arg USER=$USER_CNT_NAME \
+            --build-arg UID=$UID \
             -f docker/Dockerfile.ansible \
             .
 
-      - name: create docker network
+      - name: Create docker network
         run: docker network create $NET_NAME
 
-      - name: Run dest
+      - name: Run playground
         run: |
           docker run \
             -d \
             --network $NET_NAME \
             --network-alias playground \
+            -v ./docker/keys/id_rsa.pub:$HOME_DIR/.ssh/authorized_keys:Z \
             --name playground \
             playbook_playground
 
-      - name: Run source
+      - name: Run ansible
         run: |
           docker run \
             --rm \
             -d \
             --name ansible \
+            -v ./playbook/:$HOME_DIR/playbook/:Z,ro \
+            -v ./scripts/:$HOME_DIR/scripts/:Z,ro \
+            -v ./docker/config/ssh_client:$HOME_DIR/.ssh/config:Z,ro \
+            -v ./docker/keys/id_rsa:$HOME_DIR/.ssh/id_rsa:Z \
             --network $NET_NAME --network-alias ansible \
             playbook_ansible sleep infinity
-
-      - name: check ssh connection
-        run: docker exec ansible bash -c "ssh ansible@playground -- 'whoami'"
-
+ 
       - name: Run install playbook
         run: docker exec ansible bash -c "./scripts/install.sh"
 
