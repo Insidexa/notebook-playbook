@@ -1,5 +1,6 @@
-- name: checks
+---
+- name: Checks
   block:
-    - name: current user
+    - name: Current user
       ansible.builtin.debug:
         msg: current user {{ ansible_user_id }}

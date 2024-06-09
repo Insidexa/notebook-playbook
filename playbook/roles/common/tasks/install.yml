@@ -1,10 +1,11 @@
+---
 - name: Install common packages
   block:
-    - name: install dev tools
+    - name: Install dev tools
       become: true
       ansible.builtin.command: yum groupinstall "Development Tools" -y
 
-    - name: via package manager
+    - name: Via package manager
       become: true
       ansible.builtin.package:
         name: "{{ item }}"

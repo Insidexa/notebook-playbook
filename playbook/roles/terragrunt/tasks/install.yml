@@ -1,8 +1,8 @@
-
+---
 - name: Install Terragrunt
   block:
     - name: Check if Terragrunt is installed
-      stat:
+      ansible.builtin.stat:
         path: "{{ dest_path }}"
       register: tg_is_installed
 
@@ -15,9 +15,9 @@
     - name: Ensure the Terragrunt file is executable
       ansible.builtin.file:
         path: "{{ dest_path }}"
-        mode: '0755'
+        mode: "0755"
       when: not tg_is_installed.stat.exists
 
     - name: Terragrunt version
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'terragrunt --version'"

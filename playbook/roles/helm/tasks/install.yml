@@ -1,23 +1,23 @@
+---
 - name: Check if Helm is installed
-  stat:
-    path: "/usr/local/bin/helm"
+  ansible.builtin.stat:
+    path: /usr/local/bin/helm
   register: helm_installed
 
-
 - name: Install Helm
+  when: helm_installed.stat.exists == False
   block:
-    - name: download script
+    - name: Download script
       ansible.builtin.get_url:
-        url: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
+        url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
         dest: "{{ helm_tmp_directory }}/get_helm.sh"
-        mode: 0700
+        mode: "0700"
 
-    - name: install
+    - name: Install
       ansible.builtin.command:
-        cmd: "sh {{ helm_tmp_directory }}/get_helm.sh"
+        cmd: sh {{ helm_tmp_directory }}/get_helm.sh
       environment:
         DESIRED_VERSION: "{{ helm_version | default('') }}"
-        
-    - name: version
-      ansible.builtin.shell: helm version
-  when: helm_installed.stat.exists == False
+
+    - name: Version
+      ansible.builtin.command: helm version

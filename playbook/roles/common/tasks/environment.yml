@@ -1,7 +1,8 @@
+---
 - name: Prepare environment
   block:
     - name: Create .local/bin dir
       ansible.builtin.file:
         path: "{{ user_home }}/{{ local_bin_dir }}"
         state: directory
-        mode: '0755'
+        mode: "0755"

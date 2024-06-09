@@ -1,6 +1,7 @@
-- block:
-    - name: Uninstall VSCode
-      include_tasks: uninstall.yml
-  tags:
+---
+- tags:
     - vscode_uninstall
     - uninstall
+  block:
+    - name: Uninstall VSCode
+      ansible.builtin.include_tasks: uninstall.yml

@@ -1,10 +1,9 @@
+---
 - name: Install AWS CDK
   block:
     - name: Install typescript
-      ansible.builtin.shell: "{{ zsh_shell_cmd }} 'npm i -g typescript'"
-
+      ansible.builtin.command: "{{ zsh_shell_cmd }} 'npm i -g typescript'"
     - name: Install AWS CDK
-      ansible.builtin.shell: "{{ zsh_shell_cmd }} 'npm i -g aws-cdk'"
-
+      ansible.builtin.command: "{{ zsh_shell_cmd }} 'npm i -g aws-cdk'"
     - name: Version
-      ansible.builtin.shell: "{{ zsh_shell_cmd }} 'cdk --version'"
+      ansible.builtin.command: "{{ zsh_shell_cmd }} 'cdk --version'"

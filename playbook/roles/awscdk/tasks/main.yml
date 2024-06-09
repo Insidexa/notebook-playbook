@@ -1,13 +1,14 @@
-- block:
-    - name: AWS CDK installation tasks
-      include_tasks: install.yml
-  tags:
+---
+- tags:
     - awscdk_install
     - install
 
-- block:
-    - name: AWS CDK uninstallation tasks
-      include_tasks: uninstall.yml
-  tags:
+  block:
+    - name: AWS CDK installation tasks
+      ansible.builtin.include_tasks: install.yml
+- tags:
     - awscdk_uninstall
     - uninstall
+  block:
+    - name: AWS CDK uninstallation tasks
+      ansible.builtin.include_tasks: uninstall.yml

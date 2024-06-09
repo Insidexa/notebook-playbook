@@ -1,29 +1,29 @@
 ---
-kubectl_version: "1.29.3"
+kubectl_version: 1.29.3
 
 # SHA512 checksum of the binary. There is normally no need to change it.
 # Further information:
 #   - https://kubernetes.io/releases/download/#binaries
 #   - https://www.downloadkubernetes.com/
-kubectl_checksum_binary: "sha512:https://cdn.dl.k8s.io/release/v{{ kubectl_version }}/bin/{{ kubectl_os }}/{{ kubectl_arch }}/kubectl.sha512"
+kubectl_checksum_binary: sha512:https://cdn.dl.k8s.io/release/v{{ kubectl_version }}/bin/{{ kubectl_os }}/{{ kubectl_arch }}/kubectl.sha512
 
 # Where to install "kubectl" binary
-kubectl_bin_directory: "/usr/local/bin"
+kubectl_bin_directory: /usr/local/bin
 
 # Directory to store the kubectl archive
 kubectl_tmp_directory: "{{ lookup('env', 'TMPDIR') | default('/tmp', true) }}"
 
 # Owner of "kubectl" binary
-kubectl_owner: "root"
+kubectl_owner: root
 
 # Group of "kubectl" binary
-kubectl_group: "root"
+kubectl_group: root
 
 # Specifies the permissions of the "kubectl" binary
 kubectl_binary_mode: "0755"
 
 # Operating system on which "kubectl" should run on
-kubectl_os: "linux"  # use "darwin" for MacOS X, "windows" for Windows
+kubectl_os: linux # use "darwin" for MacOS X, "windows" for Windows
 
 # Processor architecture "kubectl" should run on
-kubectl_arch: "amd64"  # other possible values: "386","arm64","arm","ppc64le","s390x"
+kubectl_arch: amd64 # other possible values: "386","arm64","arm","ppc64le","s390x"

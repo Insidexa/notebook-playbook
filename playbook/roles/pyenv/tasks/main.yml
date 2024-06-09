@@ -1,13 +1,14 @@
-- block:
-    - name: Install Pyenv
-      include_tasks: install.yml
-  tags:
+---
+- tags:
     - pyenv_install
     - install
 
-- block:
-    - name: Uninstall Pyenv
-      include_tasks: uninstall.yml
-  tags:
+  block:
+    - name: Install Pyenv
+      ansible.builtin.include_tasks: install.yml
+- tags:
     - pyenv_uninstall
     - uninstall
+  block:
+    - name: Uninstall Pyenv
+      ansible.builtin.include_tasks: uninstall.yml

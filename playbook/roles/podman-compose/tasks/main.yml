@@ -1,14 +1,14 @@
-
-- block:
-    - name: Podman Compose installation tasks
-      include_tasks: install.yml
-  tags:
+---
+- tags:
     - podman_compose_install
     - install
 
-- block:
-    - name: Podman Compose uninstallation tasks
-      include_tasks: uninstall.yml
-  tags:
+  block:
+    - name: Podman Compose installation tasks
+      ansible.builtin.include_tasks: install.yml
+- tags:
     - podman_compose_uninstall
     - uninstall
+  block:
+    - name: Podman Compose uninstallation tasks
+      ansible.builtin.include_tasks: uninstall.yml

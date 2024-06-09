@@ -1,3 +1,4 @@
-tg_version: "v0.57.0"
-download_url: "https://github.com/gruntwork-io/terragrunt/releases/download/{{ tg_version }}/terragrunt_linux_amd64"
+---
+tg_version: v0.57.0
+download_url: https://github.com/gruntwork-io/terragrunt/releases/download/{{ tg_version }}/terragrunt_linux_amd64
 dest_path: "{{ local_bin_dir }}/terragrunt"

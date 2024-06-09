@@ -1,8 +1,9 @@
+---
 - name: Uninstall AWS CDK
   block:
     - name: Remove unused files
-      file:
-        path: '{{ user_home }}/{{ item }}'
+      ansible.builtin.file:
+        path: "{{ user_home }}/{{ item }}"
         state: absent
         force: true
       with_items:

@@ -1,3 +1,4 @@
+---
 - name: Install ZSH
   block:
     - name: Install ZSH
@@ -14,7 +15,7 @@
       ignore_errors: true
 
 - name: Is ZSH installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ user_home }}/{{ omz_dir_name }}"
   register: omz_path
 
@@ -48,16 +49,16 @@
       ansible.builtin.template:
         src: .zshrc.j2
         dest: "{{ user_home }}/.zshrc"
-        mode: "u=rw,go=r"
+        mode: u=rw,go=r
         force: false
 
-    - name: add $HOME/.local/bin to zsh
+    - name: Add $HOME/.local/bin to zsh
       ansible.builtin.blockinfile:
         block: |
           export PATH="$PATH:$HOME/{{ local_bin_dir }}/"
-        create: yes
-        marker_begin: "LOCAL BINARY START"
-        marker_end: "LOCAL BINARY END"
-        mode: 0644
+        create: true
+        marker_begin: LOCAL BINARY START
+        marker_end: LOCAL BINARY END
+        mode: "0644"
         path: "{{ user_home }}/.zshrc"
         state: present

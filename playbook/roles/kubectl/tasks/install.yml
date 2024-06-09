@@ -1,16 +1,18 @@
+---
 - name: Check if Kubetl is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ kubectl_bin_directory }}/kubectl"
   register: kubectl_installed
 
 - name: Install Kubectl
+  when: kubectl_installed.stat.exists == False
   block:
     - name: Download kubectl binary
       ansible.builtin.get_url:
-        url: "https://cdn.dl.k8s.io/release/v{{ kubectl_version }}/bin/{{ kubectl_os }}/{{ kubectl_arch }}/kubectl"
+        url: https://cdn.dl.k8s.io/release/v{{ kubectl_version }}/bin/{{ kubectl_os }}/{{ kubectl_arch }}/kubectl
         checksum: "{{ kubectl_checksum_binary }}"
         dest: "{{ kubectl_tmp_directory }}"
-        mode: 0600
+        mode: "0600"
 
     - name: Copy kubectl binary to destination directory
       ansible.builtin.copy:
@@ -24,5 +26,4 @@
         - kubectl
 
     - name: Kubectl version
-      ansible.builtin.shell: kubectl version --client
-  when: kubectl_installed.stat.exists == False
+      ansible.builtin.command: kubectl version --client

@@ -1,8 +1,8 @@
-
+---
 - name: Uninstall kubectl
   block:
     - name: Remove kubectl
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       with_items:

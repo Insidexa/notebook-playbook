@@ -1,14 +1,14 @@
-
-- block:
-    - name: Tfenv installation tasks
-      include_tasks: install.yml
-  tags:
+---
+- tags:
     - tfenv_install
     - install
 
-- block:
-    - name: Tfenv uninstallation tasks
-      include_tasks: uninstall.yml
-  tags:
+  block:
+    - name: Tfenv installation tasks
+      ansible.builtin.include_tasks: install.yml
+- tags:
     - tfenv_uninstall
     - uninstall
+  block:
+    - name: Tfenv uninstallation tasks
+      ansible.builtin.include_tasks: uninstall.yml

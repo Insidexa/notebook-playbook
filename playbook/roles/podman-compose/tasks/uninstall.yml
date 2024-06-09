@@ -1,9 +1,9 @@
-
+---
 - name: Uninstall Podman Compose
   block:
-    - name: remove file
-      file:
-        path: '{{ user_home }}/{{ item }}'
+    - name: Remove file
+      ansible.builtin.file:
+        path: "{{ user_home }}/{{ item }}"
         state: absent
         force: true
       with_items:
