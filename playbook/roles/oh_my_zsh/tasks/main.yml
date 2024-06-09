@@ -1,14 +1,12 @@
 ---
-- tags:
+- name: Install ZSH & OMZ
+  ansible.builtin.include_tasks: install.yml
+  tags:
     - omz_install
     - install
 
-  block:
-    - name: Install ZSH & OMZ
-      ansible.builtin.include_tasks: install.yml
-- tags:
+- name: Uninstall ZSH & OMZ
+  ansible.builtin.include_tasks: uninstall.yml
+  tags:
     - omz_uninstall
     - uninstall
-  block:
-    - name: Uninstall ZSH & OMZ
-      ansible.builtin.include_tasks: uninstall.yml

@@ -1,14 +1,12 @@
 ---
-- tags:
+- name: Helm installation tasks
+  ansible.builtin.include_tasks: install.yml
+  tags:
     - helm_install
     - install
 
-  block:
-    - name: Helm installation tasks
-      ansible.builtin.include_tasks: install.yml
-- tags:
+- name: Helm uninstallation tasks
+  ansible.builtin.include_tasks: uninstall.yml
+  tags:
     - helm_uninstall
     - uninstall
-  block:
-    - name: Helm uninstallation tasks
-      ansible.builtin.include_tasks: uninstall.yml

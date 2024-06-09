@@ -1,14 +1,12 @@
 ---
-- tags:
+- name: AWS installation tasks
+  ansible.builtin.include_tasks: install.yml
+  tags:
     - awscli_install
     - install
 
-  block:
-    - name: AWS installation tasks
-      ansible.builtin.include_tasks: install.yml
-- tags:
+- name: AWS uninstallation tasks
+  ansible.builtin.include_tasks: uninstall.yml
+  tags:
     - awscli_uninstall
     - uninstall
-  block:
-    - name: AWS uninstallation tasks
-      ansible.builtin.include_tasks: uninstall.yml

@@ -1,14 +1,12 @@
 ---
-- tags:
+- name: Install NVM & NodeJS
+  ansible.builtin.include_tasks: install.yml
+  tags:
     - nvm_install
     - install
 
-  block:
-    - name: Install NVM & NodeJS
-      ansible.builtin.include_tasks: install.yml
-- tags:
+- name: Uninstall NVM & NodeJS
+  ansible.builtin.include_tasks: uninstall.yml
+  tags:
     - nvm_uninstall
     - uninstall
-  block:
-    - name: Uninstall NVM & NodeJS
-      ansible.builtin.include_tasks: uninstall.yml
