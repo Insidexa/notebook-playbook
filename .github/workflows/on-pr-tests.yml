@@ -16,7 +16,6 @@ env:
 
 jobs:
   lint:
-    name: Ansible Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -25,7 +24,7 @@ jobs:
       - name: Run ansible-lint
         uses: ansible/ansible-lint@main
         with:
-          working_directory: playground
+          working_directory: playbook
 
   e2e:
     runs-on: ubuntu-latest
@@ -42,8 +41,7 @@ jobs:
 
       - name: prepare
         run: |
-          # chmod 400 ./docker/keys/ansible
-          # chmod 600 ./docker/keys/ansible.pub
+          ssh-keygen -t rsa -b 4096 -C "ansible" -f ./docker/keys/ansible -N ""
           chmod 600 ./docker/config/ssh_config
 
       - name: Build dest image
