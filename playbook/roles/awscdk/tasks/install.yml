@@ -3,7 +3,13 @@
   block:
     - name: Install typescript
       ansible.builtin.command: "{{ zsh_shell_cmd }} 'npm i -g typescript'"
+      register: install_ts_output
+      changed_when: install_ts_output.rc != 0
     - name: Install AWS CDK
       ansible.builtin.command: "{{ zsh_shell_cmd }} 'npm i -g aws-cdk'"
+      register: install_awscdk_output
+      changed_when: install_awscdk_output.rc != 0
     - name: Version
       ansible.builtin.command: "{{ zsh_shell_cmd }} 'cdk --version'"
+      register: get_awscdk_version_output
+      changed_when: get_awscdk_version_output.rc != 0

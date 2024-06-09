@@ -35,6 +35,8 @@
 
     - name: Install OMZ
       ansible.builtin.command: "{{ oh_my_zsh_install_script.path }} --unattended"
+      register: install_omz_output
+      changed_when: install_omz_output.rc != 0
 
     - name: Remove the temporary file
       ansible.builtin.file:
@@ -45,7 +47,6 @@
 - name: OMZ config
   block:
     - name: Write .zshrc
-      become_user: "{{ ansible_env.USER }}"
       ansible.builtin.template:
         src: .zshrc.j2
         dest: "{{ user_home }}/.zshrc"

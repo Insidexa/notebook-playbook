@@ -22,6 +22,10 @@
     - name: Run AWS CLI installer
       ansible.builtin.command: sudo /tmp/aws/install
       when: not aws_cli_installed.stat.exists
+      register: install_awscli_output
+      changed_when: install_awscli_output.rc != 0
 
     - name: AWS version
       ansible.builtin.command: aws --version
+      register: get_awscli_version_output
+      changed_when: get_awscli_version_output.rc != 0

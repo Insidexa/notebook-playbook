@@ -16,9 +16,5 @@
     - name: Check Terragrunt version
       ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'terragrunt --version'"
-      register: terragrunt_version
-      changed_when: false
-
-    - name: Display Terragrunt version
-      ansible.builtin.debug:
-        msg: "Terragrunt version: {{ terragrunt_version.stdout }}"
+      register: get_terragrunt_version_output
+      changed_when: get_terragrunt_version_output.rc != 0

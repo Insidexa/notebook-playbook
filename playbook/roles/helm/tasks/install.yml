@@ -18,6 +18,10 @@
         cmd: sh {{ helm_tmp_directory }}/get_helm.sh
       environment:
         DESIRED_VERSION: "{{ helm_version | default('') }}"
+      register: install_helm_output
+      changed_when: install_helm_output.rc != 0
 
     - name: Version
       ansible.builtin.command: helm version
+      register: get_helm_version_output
+      changed_when: get_helm_version_output.rc != 0

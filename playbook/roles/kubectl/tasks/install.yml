@@ -27,3 +27,5 @@
 
     - name: Kubectl version
       ansible.builtin.command: kubectl version --client
+      register: get_kubectl_version_output
+      changed_when: get_kubectl_version_output.rc != 0

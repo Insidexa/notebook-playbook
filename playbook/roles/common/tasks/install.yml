@@ -4,6 +4,8 @@
     - name: Install dev tools
       become: true
       ansible.builtin.command: yum groupinstall "Development Tools" -y
+      register: install_dev_pkgs_output
+      changed_when: install_dev_pkgs_output.rc != 0
 
     - name: Via package manager
       become: true
@@ -14,6 +16,8 @@
 
     - name: Ensure setuptools and packaging are installed using command
       ansible.builtin.command: python3 -m pip install --upgrade packaging
+      register: install_req_pip_tools_output
+      changed_when: install_req_pip_tools_output.rc != 0
 
     - name: Pip packages
       ansible.builtin.pip:

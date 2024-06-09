@@ -10,3 +10,5 @@
     - name: Version
       ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'podman-compose -v'"
+      register: get_podman_version_output
+      changed_when: get_podman_version_output.rc != 0

@@ -11,6 +11,8 @@
     - name: Clone tfenv
       ansible.builtin.command:
         cmd: git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv
+      register: clone_tfenv_repo_output
+      changed_when: clone_tfenv_repo_output.rc != 0
 
     - name: Add tfenv to .zshrc
       ansible.builtin.blockinfile:
@@ -25,13 +27,19 @@
     - name: Check tfenv version
       ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'tfenv --version'"
+      register: get_tf_env_version_output
+      changed_when: get_tf_env_version_output.rc != 0
 
 - name: Install {{ node_ver }} tfenv
   block:
     - name: Install
       ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'tfenv install {{ terraform_ver }}' "
+      register: install_tf_version_output
+      changed_when: install_tf_version_output.rc != 0
 
     - name: Use
       ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'tfenv use 1.8.5'"
+      register: set_tf_version_output
+      changed_when: set_tf_version_output.rc != 0

@@ -1,10 +1,16 @@
 ---
 - name: Install
   block:
+    - name: Download installer
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_ver }}/install.sh
+        dest: "/tmp/install_nvm.sh"
+        mode: '0755'
+
     - name: Install NVM
-      ansible.builtin.shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_ver }}/install.sh | bash
-      args:
-        creates: "{{ nvm_dir_path }}/nvm.sh"
+      ansible.builtin.command: bash /tmp/install_nvm.sh
+      register: install_nvm_output
+      changed_when: install_nvm_output.rc != 0
 
     - name: Add NVM to nvm_profile
       ansible.builtin.blockinfile:
@@ -20,13 +26,19 @@
     - name: Check version
       ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'nvm --version'"
+      register: get_nvm_version_output
+      changed_when: get_nvm_version_output.rc != 0
 
 - name: Install {{ node_ver }} NodeJS
   block:
     - name: Install
       ansible.builtin.command:
-        cmd: "{{ zsh_shell_cmd }} 'nvm install {{ node_ver }}' "
+        cmd: "{{ zsh_shell_cmd }} 'nvm install {{ node_ver }}'"
+      register: install_specific_node_version_output
+      changed_when: install_specific_node_version_output.rc != 0
 
     - name: Use
       ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'nvm use {{ node_ver }}'"
+      register: set_nvm_node_version_output
+      changed_when: set_nvm_node_version_output.rc != 0
