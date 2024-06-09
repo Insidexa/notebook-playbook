@@ -11,12 +11,12 @@
         url: https://pyenv.run
         dest: /tmp/pyenv
         mode: "0755"
-      when: pyenv_installed.stat.exists == False
+      when: not pyenv_installed.stat.exists
 
     - name: Install
       ansible.builtin.command:
         cmd: /tmp/pyenv
-      when: pyenv_installed.stat.exists == False
+      when: not pyenv_installed.stat.exists
 
     - name: Set environment variables for pyenv in zsh
       ansible.builtin.blockinfile:

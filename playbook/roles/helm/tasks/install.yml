@@ -5,7 +5,7 @@
   register: helm_installed
 
 - name: Install Helm
-  when: helm_installed.stat.exists == False
+  when: not helm_installed.stat.exists
   block:
     - name: Download script
       ansible.builtin.get_url:

@@ -5,7 +5,7 @@
   register: kubectl_installed
 
 - name: Install Kubectl
-  when: kubectl_installed.stat.exists == False
+  when: not kubectl_installed.stat.exists
   block:
     - name: Download kubectl binary
       ansible.builtin.get_url:

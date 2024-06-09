@@ -10,18 +10,18 @@
       ansible.builtin.get_url:
         url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
         dest: /tmp/awscliv2.zip
-      when: aws_cli_installed.stat.exists == False
+      when: not aws_cli_installed.stat.exists
 
     - name: Unzip AWS CLI installer
       ansible.builtin.unarchive:
         src: /tmp/awscliv2.zip
         dest: /tmp/
         remote_src: true
-      when: aws_cli_installed.stat.exists == False
+      when: not aws_cli_installed.stat.exists
 
     - name: Run AWS CLI installer
       ansible.builtin.command: sudo /tmp/aws/install
-      when: aws_cli_installed.stat.exists == False
+      when: not aws_cli_installed.stat.exists
 
     - name: AWS version
       ansible.builtin.command: aws --version

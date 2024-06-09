@@ -5,7 +5,7 @@
   register: tfenv_installed
 
 - name: Install Terraform
-  when: tfenv_installed.stat.exists == False
+  when: not tfenv_installed.stat.exists
 
   block:
     - name: Clone tfenv
