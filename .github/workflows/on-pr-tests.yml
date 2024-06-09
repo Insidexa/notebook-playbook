@@ -67,18 +67,10 @@ jobs:
             --name ansible \
             -v ./playbook/:$HOME_DIR/playbook/:Z,ro \
             -v ./scripts/:$HOME_DIR/scripts/:Z,ro \
-            -v ./docker/config/ssh_client_config:$HOME_DIR/.ssh/config:Z,ro \
+            -v ./docker/config/ssh_client:$HOME_DIR/.ssh/config:Z,ro \
             -v ./docker/keys/id_rsa:$HOME_DIR/.ssh/id_rsa:Z \
             --network $NET_NAME --network-alias ansible \
             playbook_ansible sleep infinity
-
-      - name: Verify ssh connection
-        run: |
-          # docker exec -u root ansible bash -c "ls -lah ~/.ssh"
-          # docker exec -u root ansible bash -c "chown ansible:ansible /home/ansible/.ssh/id_rsa"
-          # docker exec -u root playground bash -c "chown ansible:ansible /home/ansible/.ssh/authorized_keys"
-          # docker exec ansible bash -c "ssh-keyscan -H $(sed -n 2p playbook/hosts/docker) >> ~/.ssh/known_hosts"
-          docker exec ansible bash -c "ssh -vvv ansible@playground -- 'whoami'"
  
       - name: Run install playbook
         run: docker exec ansible bash -c "./scripts/install.sh"
