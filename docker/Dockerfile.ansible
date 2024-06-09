@@ -1,12 +1,13 @@
 FROM alpine:latest
 
 ARG USER
+ARG UID
 ENV HOME=/home/$USER
 ENV PATH="/opt/venv/bin:$PATH"
 
 RUN apk add --update --no-cache bash openssh-client git python3 py3-pip python3-dev libffi-dev musl-dev openssl-dev gcc make && \
-    addgroup -g 1000 ansible && \
-    adduser -u 1000 -G ansible -s /bin/bash -D $USER && \
+    addgroup -g ${UID} $USER && \
+    adduser -u ${UID} -G $USER -s /bin/bash -D $USER && \
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chmod 0440 /etc/sudoers && \
     echo export PATH=$PATH:$HOME/.local/bin >> /etc/profile && \

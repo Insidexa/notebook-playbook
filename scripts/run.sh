@@ -14,11 +14,12 @@ fi
 podman build -t playbook_playground --build-arg USER=$USER_CNT_NAME -f docker/Dockerfile.dest .
 podman build -t playbook_ansible --build-arg USER=$USER_CNT_NAME -f docker/Dockerfile.ansible .
 
+ssh-keygen -t rsa -b 4096 -C "ansible" -f ./docker/keys/id_rsa -N ""  <<< 'y'
+
 podman run \
   --detach \
   --name=playground \
-  -v ./docker/config/sshd_config:/etc/ssh/sshd_config:Z,ro \
-  -v ./docker/keys/ansible.pub:$HOME_DIR/.ssh/authorized_keys:Z,ro \
+  -v ./docker/keys/id_rsa.pub:$HOME_DIR/.ssh/authorized_keys:Z,ro \
   --net $NETWORK_NAME \
   --network-alias playground \
   -u root \
@@ -29,11 +30,9 @@ podman run \
   --name=ansible \
   --userns=keep-id \
   --requires=playground \
-  -v ./docker/config/ansible.cfg:/etc/ansible/ansible.cfg:ro \
   -v ./playbook/:$HOME_DIR/playbook/:Z,ro \
   -v ./scripts/:$HOME_DIR/scripts/:Z,ro \
-  -v ./docker/config/ssh_config:$HOME_DIR/.ssh/config:Z,ro \
-  -v ./docker/keys/ansible:$HOME_DIR/.ssh/id_rsa:Z,ro \
+  -v ./docker/keys/id_rsa:$HOME_DIR/.ssh/id_rsa:Z,ro \
   --net $NETWORK_NAME \
   --network-alias ansible \
   playbook_ansible \

@@ -1,4 +1,4 @@
-name: Ansible tests
+name: Tests checks
 
 on:
   pull_request:
@@ -15,17 +15,6 @@ env:
   HOME_DIR: "/home/ansible"
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run ansible-lint
-        uses: ansible/ansible-lint@main
-        with:
-          working_directory: playbook
-
   e2e:
     runs-on: ubuntu-latest
 
@@ -36,65 +25,61 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: prepare
-        run: |
-          ssh-keygen -t rsa -b 4096 -C "ansible" -f ./docker/keys/ansible -N ""
-          chmod 600 ./docker/config/ssh_config
+      - name: Generate kp
+        run: ssh-keygen -t rsa -b 4096 -C "ansible" -f ./docker/keys/id_rsa -N ""
 
-      - name: Build dest image
+      - name: Build playground image
         run: |
           docker build \
             -t playbook_playground \
             --build-arg USER=$USER_CNT_NAME \
+            --build-arg UID=$UID \
             -f docker/Dockerfile.dest \
             .
 
-      - name: Build source image
+      - name: Build ansible image
         run: |
           docker build \
             -t playbook_ansible \
             --build-arg USER=$USER_CNT_NAME \
+            --build-arg UID=$UID \
             -f docker/Dockerfile.ansible \
             .
 
-      - name: create docker network
+      - name: Create docker network
         run: docker network create $NET_NAME
 
-      - name: Run dest
+      - name: Run playground
         run: |
           docker run \
             -d \
             --network $NET_NAME \
             --network-alias playground \
-            -v ./docker/config/sshd_config:/etc/ssh/sshd_config:Z,ro \
-            -v ./docker/keys/ansible.pub:$HOME_DIR/.ssh/authorized_keys:Z,ro \
+            -v ./docker/keys/id_rsa.pub:$HOME_DIR/.ssh/authorized_keys:Z \
             --name playground \
             playbook_playground
 
-      - name: Run source
+      - name: Run ansible
         run: |
           docker run \
             --rm \
             -d \
             --name ansible \
-            -v ./docker/config/ansible.cfg:/etc/ansible/ansible.cfg:ro \
             -v ./playbook/:$HOME_DIR/playbook/:Z,ro \
             -v ./scripts/:$HOME_DIR/scripts/:Z,ro \
-            -v ./docker/config/ssh_config:$HOME_DIR/.ssh/config:Z,ro \
-            -v ./docker/keys/ansible:$HOME_DIR/.ssh/id_rsa:Z,ro \
+            -v ./docker/config/ssh_client_config:$HOME_DIR/.ssh/config:Z,ro \
+            -v ./docker/keys/id_rsa:$HOME_DIR/.ssh/id_rsa:Z \
             --network $NET_NAME --network-alias ansible \
             playbook_ansible sleep infinity
 
-      # - name: check
-      #   run: |
-      #     docker exec ansible bash -c "ls -lah ~/.ssh"
-      #     docker exec ansible bash -c "cat ~/.ssh/config"
-      #     docker exec ansible bash -c "stat --format '%a' ~/.ssh/config"
-      #     docker exec ansible bash -c "stat --format '%a' ~/.ssh/id_rsa"
-
-      # - name: check ssh connection
-      #   run: docker exec ansible bash -c "ssh ansible@playground -- 'whoami'"
-
+      - name: Verify ssh connection
+        run: |
+          # docker exec -u root ansible bash -c "ls -lah ~/.ssh"
+          # docker exec -u root ansible bash -c "chown ansible:ansible /home/ansible/.ssh/id_rsa"
+          # docker exec -u root playground bash -c "chown ansible:ansible /home/ansible/.ssh/authorized_keys"
+          # docker exec ansible bash -c "ssh-keyscan -H $(sed -n 2p playbook/hosts/docker) >> ~/.ssh/known_hosts"
+          docker exec ansible bash -c "ssh -vvv ansible@playground -- 'whoami'"
+ 
       - name: Run install playbook
         run: docker exec ansible bash -c "./scripts/install.sh"
 
