@@ -12,7 +12,6 @@
       ansible.builtin.user:
         name: "{{ ansible_user_id }}"
         shell: "{{ zsh_binary }}"
-      ignore_errors: true
 
 - name: Is ZSH installed
   ansible.builtin.stat:
