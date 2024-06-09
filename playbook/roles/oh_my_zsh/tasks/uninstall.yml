@@ -12,7 +12,7 @@
         path: "{{ user_home }}/{{ item }}/"
         state: absent
       with_items:
-        - "{{ omz_dir_name }}"
+        - "{{ oh_my_zsh_dir }}"
 
     - name: Remove unused files
       ansible.builtin.file:

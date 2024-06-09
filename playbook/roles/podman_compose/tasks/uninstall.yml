@@ -7,4 +7,4 @@
         state: absent
         force: true
       with_items:
-        - "{{ dest_path }}"
+        - "{{ podman_compose_dest_path }}"

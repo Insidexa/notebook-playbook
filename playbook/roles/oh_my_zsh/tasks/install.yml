@@ -16,7 +16,7 @@
 
 - name: Is ZSH installed
   ansible.builtin.stat:
-    path: "{{ user_home }}/{{ omz_dir_name }}"
+    path: "{{ user_home }}/{{ oh_my_zsh_dir }}"
   register: omz_path
 
 - name: Install OMZ
