@@ -6,7 +6,6 @@
       ansible.builtin.user:
         name: "{{ ansible_user_id }}"
         shell: /bin/bash
-      ignore_errors: true
 
     - name: Remove OMZ
       ansible.builtin.file:

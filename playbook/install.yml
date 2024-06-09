@@ -6,7 +6,7 @@
   roles:
     - role: common
 
-    - role: oh-my-zsh
+    - role: oh_my_zsh
 
     - role: awscli
       become: true
@@ -18,7 +18,7 @@
     - role: kubectl
       become: true
 
-    - role: podman-compose
+    - role: podman_compose
 
     - role: awscdk
 

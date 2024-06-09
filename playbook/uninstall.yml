@@ -7,7 +7,7 @@
 
   roles:
     # priority
-    - role: oh-my-zsh
+    - role: oh_my_zsh
 
     - role: awscdk
 
@@ -27,7 +27,7 @@
 
     - role: tfenv
 
-    - role: podman-compose
+    - role: podman_compose
 
     - role: pyenv
 
