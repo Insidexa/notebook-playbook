@@ -14,6 +14,7 @@
         clone: true
         dest: ~/.tfenv
         depth: 1
+        version: master
 
     - name: Add tfenv to .zshrc
       ansible.builtin.blockinfile:
