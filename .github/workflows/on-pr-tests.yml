@@ -36,9 +36,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: whoami ga
-        run: whoami
-
       - name: prepare
         run: |
           ssh-keygen -t rsa -b 4096 -C "ansible" -f ./docker/keys/ansible -N ""
@@ -88,8 +85,15 @@ jobs:
             --network $NET_NAME --network-alias ansible \
             playbook_ansible sleep infinity
 
-      - name: check ssh connection
-        run: docker exec ansible bash -c "ssh ansible@playground -- 'whoami'"
+      # - name: check
+      #   run: |
+      #     docker exec ansible bash -c "ls -lah ~/.ssh"
+      #     docker exec ansible bash -c "cat ~/.ssh/config"
+      #     docker exec ansible bash -c "stat --format '%a' ~/.ssh/config"
+      #     docker exec ansible bash -c "stat --format '%a' ~/.ssh/id_rsa"
+
+      # - name: check ssh connection
+      #   run: docker exec ansible bash -c "ssh ansible@playground -- 'whoami'"
 
       - name: Run install playbook
         run: docker exec ansible bash -c "./scripts/install.sh"
