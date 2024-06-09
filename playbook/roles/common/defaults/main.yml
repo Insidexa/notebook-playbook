@@ -1,6 +1,5 @@
 ---
 common_packages:
-  - git
   - openssl
   - openssl-devel
   - zlib-devel
