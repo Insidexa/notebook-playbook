@@ -1,12 +1,5 @@
 ---
 - block:
-    - name: Checks
-      ansible.builtin.include_tasks: checks.yml
-- tags:
-    - common_install
-    - install
-
-  block:
     - name: Common installation tasks
       ansible.builtin.include_tasks: install.yml
 - tags:
