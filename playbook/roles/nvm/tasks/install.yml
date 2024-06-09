@@ -29,7 +29,7 @@
       register: get_nvm_version_output
       changed_when: get_nvm_version_output.rc != 0
 
-- name: Install {{ nvm_node_ver }} NodeJS
+- name: Install NodeJS {{ nvm_node_ver }}
   block:
     - name: Install
       ansible.builtin.command:
