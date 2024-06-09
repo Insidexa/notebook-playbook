@@ -1,12 +1,6 @@
 ---
 - name: Install common packages
   block:
-    - name: Install dev tools
-      become: true
-      ansible.builtin.dnf:
-        name: "@Development Tools"
-        state: present
-
     - name: Via package manager
       become: true
       ansible.builtin.package:

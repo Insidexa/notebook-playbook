@@ -25,9 +25,3 @@
 
     # - name: delete pip packaging
     #   ansible.builtin.command: python3 -m pip uninstall -y packaging
-
-    - name: Delete dev tools
-      become: true
-      ansible.builtin.dnf:
-        name: "@Development Tools"
-        state: absent

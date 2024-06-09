@@ -1,5 +1,6 @@
 ---
 common_packages:
+  - "@Development Tools"
   - openssl
   - openssl-devel
   - zlib-devel
