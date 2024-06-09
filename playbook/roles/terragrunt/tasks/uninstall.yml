@@ -6,4 +6,4 @@
         path: "{{ item }}"
         state: absent
       with_items:
-        - "{{ dest_path }}"
+        - "{{ terragrunt_dest_path }}"

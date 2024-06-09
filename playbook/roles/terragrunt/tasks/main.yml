@@ -1,12 +1,14 @@
 ---
-- tags:
+- name: Install
+  tags:
     - terragrunt_install
     - install
 
   block:
     - name: Terragrunt installation tasks
       ansible.builtin.include_tasks: install.yml
-- tags:
+- name: Uninstall
+  tags:
     - terragrunt_uninstall
     - uninstall
   block:
