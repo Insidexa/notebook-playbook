@@ -1,5 +1,7 @@
 ---
 - name: Uninstall Terragrunt
+  tags:
+    - uninstall
   block:
     - name: Remove files
       ansible.builtin.file:

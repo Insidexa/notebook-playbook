@@ -3,8 +3,12 @@
   ansible.builtin.stat:
     path: "{{ user_home }}/.pyenv"
   register: pyenv_installed
+  tags:
+    - install
 
 - name: Install Pyenv
+  tags:
+    - install
   block:
     - name: Download installer
       ansible.builtin.get_url:

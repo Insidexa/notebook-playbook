@@ -1,5 +1,7 @@
 ---
 - name: Remove VSCode files
+  tags:
+    - uninstall
   block:
     - name: Remove code
       become: true

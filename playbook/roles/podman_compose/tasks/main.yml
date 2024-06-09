@@ -5,7 +5,6 @@
     - podman_compose_install
     - install
 
-
 - name: Podman Compose uninstallation tasks
   ansible.builtin.include_tasks: uninstall.yml
   tags:

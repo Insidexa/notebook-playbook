@@ -1,5 +1,7 @@
 ---
 - name: Uninstall AWS CDK
+  tags:
+    - uninstall
   block:
     - name: Remove unused files
       ansible.builtin.file:

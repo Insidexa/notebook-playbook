@@ -3,10 +3,13 @@
   ansible.builtin.stat:
     path: "{{ tfenv_dir_path }}"
   register: tfenv_installed
+  tags:
+    - install
 
 - name: Install Terraform
   when: not tfenv_installed.stat.exists
-
+  tags:
+    - install
   block:
     - name: Clone tfenv
       ansible.builtin.git:
@@ -33,6 +36,8 @@
       changed_when: get_tf_env_version_output.rc != 0
 
 - name: Install tfenv {{ node_ver }}
+  tags:
+    - install
   block:
     - name: Install
       ansible.builtin.command:

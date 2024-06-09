@@ -1,5 +1,7 @@
 ---
 - name: Uninstall Helm
+  tags:
+    - uninstall
   block:
     - name: Delete binary
       ansible.builtin.file:

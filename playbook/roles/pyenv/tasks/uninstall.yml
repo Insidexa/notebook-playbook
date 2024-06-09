@@ -1,5 +1,7 @@
 ---
 - name: Uninstall Pyenv
+  tags:
+    - uninstall
   block:
     - name: Remove pyenv directory
       ansible.builtin.file:

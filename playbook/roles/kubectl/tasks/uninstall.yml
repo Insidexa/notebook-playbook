@@ -1,5 +1,7 @@
 ---
 - name: Uninstall kubectl
+  tags:
+    - uninstall
   block:
     - name: Remove kubectl
       ansible.builtin.file:

@@ -1,5 +1,7 @@
 ---
 - name: Uninstall AWS cli
+  tags:
+    - uninstall
   block:
     - name: Remove AWS CLI symlinks
       ansible.builtin.file:

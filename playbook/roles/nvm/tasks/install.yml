@@ -1,11 +1,13 @@
 ---
 - name: Install
+  tags:
+    - install
   block:
     - name: Download installer
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_ver }}/install.sh
-        dest: "/tmp/install_nvm.sh"
-        mode: '0755'
+        dest: /tmp/install_nvm.sh
+        mode: "0755"
 
     - name: Install NVM
       ansible.builtin.command: bash /tmp/install_nvm.sh
@@ -30,6 +32,8 @@
       changed_when: get_nvm_version_output.rc != 0
 
 - name: Install NodeJS {{ nvm_node_ver }}
+  tags:
+    - install
   block:
     - name: Install
       ansible.builtin.command:

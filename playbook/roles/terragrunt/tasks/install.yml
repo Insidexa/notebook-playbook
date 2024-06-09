@@ -1,5 +1,7 @@
 ---
 - name: Install Terragrunt
+  tags:
+    - install
   block:
     - name: Check if Terragrunt is installed
       ansible.builtin.stat:

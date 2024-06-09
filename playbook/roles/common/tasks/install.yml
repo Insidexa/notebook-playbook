@@ -1,5 +1,7 @@
 ---
 - name: Install common packages
+  tags:
+    - install
   block:
     - name: Via package manager
       become: true

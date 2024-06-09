@@ -1,5 +1,7 @@
 ---
 - name: Uninstall
+  tags:
+    - uninstall
   block:
     - name: Set Bash as default shell
       become: true

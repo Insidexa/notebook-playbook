@@ -1,5 +1,7 @@
 ---
 - name: Install ZSH
+  tags:
+    - install
   block:
     - name: Install ZSH
       become: true
@@ -17,9 +19,13 @@
   ansible.builtin.stat:
     path: "{{ user_home }}/{{ oh_my_zsh_dir }}"
   register: omz_path
+  tags:
+    - install
 
 - name: Install OMZ
   when: not omz_path.stat.exists
+  tags:
+    - install
   block:
     - name: Create temporary file
       ansible.builtin.tempfile:
@@ -44,6 +50,8 @@
       when: oh_my_zsh_install_script.path is defined
 
 - name: OMZ config
+  tags:
+    - install
   block:
     - name: Write .zshrc
       ansible.builtin.template:

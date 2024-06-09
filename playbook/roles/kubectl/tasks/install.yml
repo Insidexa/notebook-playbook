@@ -3,9 +3,13 @@
   ansible.builtin.stat:
     path: "{{ kubectl_bin_directory }}/kubectl"
   register: kubectl_installed
+  tags:
+    - install
 
 - name: Install Kubectl
   when: not kubectl_installed.stat.exists
+  tags:
+    - install
   block:
     - name: Download kubectl binary
       ansible.builtin.get_url:

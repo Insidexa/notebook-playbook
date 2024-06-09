@@ -1,5 +1,7 @@
 ---
 - name: Install AWS CDK
+  tags:
+    - install
   block:
     - name: Install typescript
       ansible.builtin.command: "{{ zsh_shell_cmd }} 'npm i -g typescript'"

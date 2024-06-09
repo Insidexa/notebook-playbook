@@ -1,5 +1,7 @@
 ---
 - name: Prepare environment
+  tags:
+    - install
   block:
     - name: Create .local/bin dir
       ansible.builtin.file:

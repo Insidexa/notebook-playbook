@@ -1,5 +1,7 @@
 ---
 - name: Uninstall Podman Compose
+  tags:
+    - uninstall
   block:
     - name: Remove file
       ansible.builtin.file:

@@ -1,5 +1,7 @@
 ---
 - name: Uninstall common packages
+  tags:
+    - uninstall
   block:
     - name: Pip packages
       ansible.builtin.pip:

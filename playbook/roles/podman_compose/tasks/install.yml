@@ -1,5 +1,7 @@
 ---
 - name: Install Podman Compose
+  tags:
+    - install
   block:
     - name: Install via cURL
       ansible.builtin.get_url:
