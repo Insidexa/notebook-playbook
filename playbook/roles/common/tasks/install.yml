@@ -14,7 +14,7 @@
     - name: Ensure setuptools and packaging are installed using command
       ansible.builtin.command: python3 -m pip install --upgrade packaging
 
-    - name: pip packages
+    - name: Pip packages
       ansible.builtin.pip:
         name: "{{ item }}"
         state: present

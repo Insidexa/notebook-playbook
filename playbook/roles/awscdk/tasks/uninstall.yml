@@ -1,4 +1,3 @@
-
 - name: Uninstall AWS CDK
   block:
     - name: Remove unused files

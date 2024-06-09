@@ -1,18 +1,10 @@
-
 - name: Install AWS CDK
   block:
-    # - name: Install typescript
-    #   include_role:
-    #     name: shared
-    #     tasks_from: run-zsh.yml
-    #   vars:
-    #     zsh_cmd: 'npm i -g typescript'
-
     - name: Install typescript
       ansible.builtin.shell: "{{ zsh_shell_cmd }} 'npm i -g typescript'"
 
     - name: Install AWS CDK
       ansible.builtin.shell: "{{ zsh_shell_cmd }} 'npm i -g aws-cdk'"
 
-    - name: version
+    - name: Version
       ansible.builtin.shell: "{{ zsh_shell_cmd }} 'cdk --version'"
