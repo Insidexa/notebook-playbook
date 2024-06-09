@@ -11,7 +11,7 @@
     - name: Clone tfenv
       ansible.builtin.git:
         repo: https://github.com/tfutils/tfenv.git
-        clone: yes
+        clone: true
         dest: ~/.tfenv
         depth: 1
 
