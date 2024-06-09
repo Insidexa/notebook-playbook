@@ -2,4 +2,4 @@
 tfenv_dir_name: .tfenv
 tfenv_dir_path: "{{ user_home }}/{{ tfenv_dir_name }}"
 
-terraform_ver: latest
+tfenv_terraform_ver: latest

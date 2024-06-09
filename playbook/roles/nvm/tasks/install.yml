@@ -29,16 +29,16 @@
       register: get_nvm_version_output
       changed_when: get_nvm_version_output.rc != 0
 
-- name: Install {{ node_ver }} NodeJS
+- name: Install {{ nvm_node_ver }} NodeJS
   block:
     - name: Install
       ansible.builtin.command:
-        cmd: "{{ zsh_shell_cmd }} 'nvm install {{ node_ver }}'"
+        cmd: "{{ zsh_shell_cmd }} 'nvm install {{ nvm_node_ver }}'"
       register: install_specific_node_version_output
       changed_when: install_specific_node_version_output.rc != 0
 
     - name: Use
       ansible.builtin.command:
-        cmd: "{{ zsh_shell_cmd }} 'nvm use {{ node_ver }}'"
+        cmd: "{{ zsh_shell_cmd }} 'nvm use {{ nvm_node_ver }}'"
       register: set_nvm_node_version_output
       changed_when: set_nvm_node_version_output.rc != 0

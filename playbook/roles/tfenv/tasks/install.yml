@@ -34,7 +34,7 @@
   block:
     - name: Install
       ansible.builtin.command:
-        cmd: "{{ zsh_shell_cmd }} 'tfenv install {{ terraform_ver }}' "
+        cmd: "{{ zsh_shell_cmd }} 'tfenv install {{ tfenv_terraform_ver }}' "
       register: install_tf_version_output
       changed_when: install_tf_version_output.rc != 0
 

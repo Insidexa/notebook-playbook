@@ -5,7 +5,7 @@
       ansible.builtin.pip:
         name: "{{ item }}"
         state: absent
-      with_items: "{{ pip_packages }}"
+      with_items: "{{ common_pip_packages }}"
 
     - name: Remove files
       ansible.builtin.file:
@@ -21,7 +21,7 @@
       ansible.builtin.package:
         name: "{{ item }}"
         state: absent
-      with_items: "{{ packages }}"
+      with_items: "{{ common_packages }}"
 
     # - name: delete pip packaging
     #   ansible.builtin.command: python3 -m pip uninstall -y packaging

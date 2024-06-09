@@ -12,7 +12,7 @@
       ansible.builtin.package:
         name: "{{ item }}"
         state: present
-      with_items: "{{ packages }}"
+      with_items: "{{ common_packages }}"
 
     - name: Ensure setuptools and packaging are installed using command
       ansible.builtin.command: python3 -m pip install --upgrade packaging
@@ -23,4 +23,4 @@
       ansible.builtin.pip:
         name: "{{ item }}"
         state: present
-      with_items: "{{ pip_packages }}"
+      with_items: "{{ common_pip_packages }}"

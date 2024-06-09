@@ -25,7 +25,7 @@
     - role: helm
       become: true
 
-    - role: terraform
+    - role: tfenv
 
     - role: terragrunt
 
