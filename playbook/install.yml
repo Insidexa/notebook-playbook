@@ -29,24 +29,24 @@
 
     - role: terragrunt
 
-    # - role: vscode
-    #   vars:
-    #     visual_studio_code_version: ''
-    #     visual_studio_code_build: stable
-    #     visual_studio_code_mirror: 'https://packages.microsoft.com'
-    #     visual_studio_code_gpgcheck: true
-    #     users:
-    #       - username: 'ansible'
-    #         visual_studio_code_extensions:
-    #           - redhat.ansible
-    #           - 4ops.terraform
-    #           - fredwangwang.vscode-hcl-format
-    #           - golang.go
-    #           - hashicorp.hcl
-    #           - hashicorp.terraform
-    #           - visualstudioexptteam.vscodeintellicode
-    #           - technosophos.vscode-helm
-    #           - shakram02.bash-beautify
-    #   tags:
-    #     - vscode_install
-    #     - install
+    - role: visual_studio_code
+      vars:
+        visual_studio_code_version: ''
+        visual_studio_code_build: stable
+        visual_studio_code_mirror: 'https://packages.microsoft.com'
+        visual_studio_code_gpgcheck: true
+        users:
+          - username: 'ansible'
+            visual_studio_code_extensions:
+              - redhat.ansible
+              - 4ops.terraform
+              - fredwangwang.vscode-hcl-format
+              - golang.go
+              - hashicorp.hcl
+              - hashicorp.terraform
+              - visualstudioexptteam.vscodeintellicode
+              - technosophos.vscode-helm
+              - shakram02.bash-beautify
+      tags:
+        - vscode_install
+        - install
