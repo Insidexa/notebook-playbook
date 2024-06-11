@@ -66,3 +66,14 @@
       when: pyenv_python_version not in get_pyenv_py_version_output.stdout_lines
       register: set_python_version_output
       changed_when: set_python_version_output.rc != 0
+
+- name: Install packages
+  tags:
+    - install
+  block:
+    - name: Default packages
+      ansible.builtin.command:
+        cmd: "{{ zsh_shell_cmd }} 'pip install --user {{ item }}'"
+      with_items: "{{ pyenv_packages }}"
+      register: install_pkg_venv_output
+      changed_when: install_pkg_venv_output.rc != 0

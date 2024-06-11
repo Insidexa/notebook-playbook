@@ -1,12 +1,15 @@
 ---
-- name: Common installation tasks
-  ansible.builtin.include_tasks: install.yml
+- name: Prepare env
+  ansible.builtin.include_tasks: environment.yml
   tags:
     - prepare_env
     - install
 
-- name: Prepare env
-  ansible.builtin.include_tasks: environment.yml
+- name: Common installation tasks
+  ansible.builtin.include_tasks: install.yml
+  tags:
+    - common_install
+    - install
 
 - name: Common uninstallation tasks
   ansible.builtin.include_tasks: uninstall.yml

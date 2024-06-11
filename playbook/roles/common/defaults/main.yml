@@ -14,5 +14,3 @@ common_packages:
   - podman
 
 common_pip_packages:
-  - pyyaml
-  - python-dotenv
