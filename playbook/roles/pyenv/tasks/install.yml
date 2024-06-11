@@ -1,21 +1,28 @@
+---
 - name: Check if Pyenv is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ user_home }}/.pyenv"
   register: pyenv_installed
+  tags:
+    - install
 
 - name: Install Pyenv
+  tags:
+    - install
   block:
     - name: Download installer
       ansible.builtin.get_url:
         url: https://pyenv.run
-        dest: "/tmp/pyenv"
+        dest: /tmp/pyenv
         mode: "0755"
-      when: pyenv_installed.stat.exists == False
+      when: not pyenv_installed.stat.exists
 
-    - name: install
+    - name: Install
       ansible.builtin.command:
         cmd: /tmp/pyenv
-      when: pyenv_installed.stat.exists == False
+      when: not pyenv_installed.stat.exists
+      register: pyenv_install_output
+      changed_when: pyenv_install_output.rc != 0
 
     - name: Set environment variables for pyenv in zsh
       ansible.builtin.blockinfile:
@@ -23,32 +30,39 @@
           export PYENV_ROOT="$HOME/.pyenv"
           export PATH="$PYENV_ROOT/bin:$PATH"
           eval "$(pyenv init --path)"
-        marker_begin: "PYENV START"
-        marker_end: "PYENV END"
-        mode: 0644
+        marker_begin: PYENV START
+        marker_end: PYENV END
+        mode: "0644"
         path: "{{ user_home }}/.zshrc"
         state: present
 
-    - name: pyenv version
+    - name: Pyenv version
       ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'pyenv -v'"
+      register: get_pyenv_version_output
+      changed_when: get_pyenv_version_output.rc != 0
 
     - name: Check for the desired Python version in pyenv
       ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'pyenv versions --bare'"
-      register: pyenv_versions
+      register: get_pyenv_py_version_output
+      changed_when: get_pyenv_py_version_output.rc != 0
 
     - name: Verify Python version exists
-      debug:
-        msg: "Python {{ python_version }} is installed in pyenv."
-      when: python_version in pyenv_versions.stdout_lines
+      ansible.builtin.debug:
+        msg: Python {{ pyenv_python_version }} is installed in pyenv.
+      when: pyenv_python_version in get_pyenv_py_version_output.stdout_lines
 
-    - name: install python specific version
+    - name: Install python specific version
       ansible.builtin.command:
-        cmd: "{{ zsh_shell_cmd }} 'pyenv install {{ python_version }}'"
-      when: python_version not in pyenv_versions.stdout_lines
+        cmd: "{{ zsh_shell_cmd }} 'pyenv install {{ pyenv_python_version }}'"
+      when: pyenv_python_version not in get_pyenv_py_version_output.stdout_lines
+      register: install_python_version_output
+      changed_when: install_python_version_output.rc != 0
 
-    - name: set python specific version as global
+    - name: Set python specific version as global
       ansible.builtin.command:
-        cmd: "{{ zsh_shell_cmd }} 'pyenv global {{ python_version }}'"
-      when: python_version not in pyenv_versions.stdout_lines
+        cmd: "{{ zsh_shell_cmd }} 'pyenv global {{ pyenv_python_version }}'"
+      when: pyenv_python_version not in get_pyenv_py_version_output.stdout_lines
+      register: set_python_version_output
+      changed_when: set_python_version_output.rc != 0

@@ -1,30 +1,29 @@
+---
 - name: Uninstall common packages
+  tags:
+    - uninstall
   block:
-    - name: pip packages
+    - name: Pip packages
       ansible.builtin.pip:
         name: "{{ item }}"
         state: absent
-      with_items: "{{ pip_packages }}"
+      with_items: "{{ common_pip_packages }}"
 
-    - name: remove files
-      file:
-        path: '{{ user_home }}/{{ item }}'
+    - name: Remove files
+      ansible.builtin.file:
+        path: "{{ user_home }}/{{ item }}"
         state: absent
         force: true
       with_items:
         - .cache/pip
         - "{{ local_bin_dir }}"
 
-    - name: via package manager
+    - name: Via package manager
       become: true
       ansible.builtin.package:
         name: "{{ item }}"
         state: absent
-      with_items: "{{ packages }}"
+      with_items: "{{ common_packages }}"
 
     # - name: delete pip packaging
     #   ansible.builtin.command: python3 -m pip uninstall -y packaging
-
-    - name: delete dev tools
-      become: true
-      ansible.builtin.command: yum groupremove "Development Tools" -y

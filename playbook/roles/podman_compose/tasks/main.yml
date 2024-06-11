@@ -1,0 +1,12 @@
+---
+- name: Podman Compose installation tasks
+  ansible.builtin.include_tasks: install.yml
+  tags:
+    - podman_compose_install
+    - install
+
+- name: Podman Compose uninstallation tasks
+  ansible.builtin.include_tasks: uninstall.yml
+  tags:
+    - podman_compose_uninstall
+    - uninstall

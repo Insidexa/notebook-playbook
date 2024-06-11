@@ -1,23 +1,25 @@
-
+---
 - name: Uninstall Tfenv
+  tags:
+    - uninstall
   block:
-    - name: delete .tfenv dir
-      file:
+    - name: Delete .tfenv dir
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       with_items:
         - "{{ tfenv_dir_path }}"
         - "{{ user_home }}/.terraform.d"
 
-    - name: check if .zshrc file exists
+    - name: Check if .zshrc file exists
       ansible.builtin.stat:
         path: "{{ user_home }}/.zshrc"
       register: zshrc
 
-    - name: remove tfenv from .zshrc
+    - name: Remove tfenv from .zshrc
       ansible.builtin.blockinfile:
-        marker_begin: "TFENV START"
-        marker_end: "TFENV END"
+        marker_begin: TFENV START
+        marker_end: TFENV END
         path: "{{ user_home }}/.zshrc"
         state: absent
       when: zshrc.stat.exists

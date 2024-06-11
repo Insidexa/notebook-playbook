@@ -71,7 +71,7 @@ jobs:
             -v ./docker/keys/id_rsa:$HOME_DIR/.ssh/id_rsa:Z \
             --network $NET_NAME --network-alias ansible \
             playbook_ansible sleep infinity
- 
+
       - name: Run install playbook
         run: docker exec ansible bash -c "./scripts/install.sh"
 

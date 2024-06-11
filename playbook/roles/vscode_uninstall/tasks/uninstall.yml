@@ -1,24 +1,27 @@
+---
 - name: Remove VSCode files
+  tags:
+    - uninstall
   block:
-    - name: remove code
+    - name: Remove code
       become: true
       ansible.builtin.package:
         name: code
         state: absent
 
-    - name: remove extensions
-      file:
-        path: '{{ user_home }}/{{ item }}'
+    - name: Remove extensions
+      ansible.builtin.file:
+        path: "{{ user_home }}/{{ item }}"
         state: absent
         force: true
       with_items:
         - .vscode
         - .config/Code
 
-    - name: remove usr/share/code
+    - name: Remove usr/share/code
       become: true
-      file:
-        path: '{{ item }}'
+      ansible.builtin.file:
+        path: "{{ item }}"
         state: absent
         force: true
       with_items:
@@ -30,7 +33,7 @@
         name: code
         state: absent
 
-    - name: remove yum repo file
+    - name: Remove yum repo file
       become: true
       ansible.builtin.file:
         path: /etc/yum.repos.d/vscode.repo
@@ -38,7 +41,8 @@
 
     - name: Update the YUM package list
       become: true
-      ansible.builtin.yum:
-        name: '*'
+      ansible.builtin.dnf:
+        name: "*"
         state: latest
-        update_cache: yes
+        update_cache: true
+        update_only: true

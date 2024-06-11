@@ -1,1 +1,2 @@
-helm_tmp_directory: "/tmp"
+---
+helm_tmp_directory: /tmp

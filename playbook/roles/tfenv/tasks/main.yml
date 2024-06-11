@@ -1,12 +1,12 @@
 ---
-- name: Install NVM & NodeJS
+- name: Tfenv installation tasks
   ansible.builtin.include_tasks: install.yml
   tags:
-    - nvm_install
+    - tfenv_install
     - install
 
-- name: Uninstall NVM & NodeJS
+- name: Tfenv uninstallation tasks
   ansible.builtin.include_tasks: uninstall.yml
   tags:
-    - nvm_uninstall
+    - tfenv_uninstall
     - uninstall

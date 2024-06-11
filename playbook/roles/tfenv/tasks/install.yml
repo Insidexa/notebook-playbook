@@ -1,0 +1,52 @@
+---
+- name: Check if tfenv is installed
+  ansible.builtin.stat:
+    path: "{{ tfenv_dir_path }}"
+  register: tfenv_installed
+  tags:
+    - install
+
+- name: Install Terraform
+  when: not tfenv_installed.stat.exists
+  tags:
+    - install
+  block:
+    - name: Clone tfenv
+      ansible.builtin.git:
+        repo: https://github.com/tfutils/tfenv.git
+        clone: true
+        dest: ~/.tfenv
+        depth: 1
+        version: master
+
+    - name: Add tfenv to .zshrc
+      ansible.builtin.blockinfile:
+        block: |
+          export PATH="$HOME/.tfenv/bin:$PATH"
+        marker_begin: TFENV START
+        marker_end: TFENV END
+        mode: "0644"
+        path: "{{ user_home }}/.zshrc"
+        state: present
+
+    - name: Check tfenv version
+      ansible.builtin.command:
+        cmd: "{{ zsh_shell_cmd }} 'tfenv --version'"
+      register: get_tf_env_version_output
+      changed_when: get_tf_env_version_output.rc != 0
+
+- name: Install tfenv {{ node_ver }}
+  tags:
+    - install
+  block:
+    - name: Install
+      ansible.builtin.command:
+        cmd: "{{ zsh_shell_cmd }} 'tfenv install {{ tfenv_terraform_ver }}' "
+      register: install_tf_version_output
+      changed_when: install_tf_version_output.rc != 0
+
+    - name: Use
+      ansible.builtin.command:
+        cmd: "{{ zsh_shell_cmd }} 'tfenv use 1.8.5'"
+      register: set_tf_version_output
+      changed_when: set_tf_version_output.rc != 0

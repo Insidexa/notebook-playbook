@@ -1,5 +1,6 @@
-packages:
-  - git
+---
+common_packages:
+  - "@Development Tools"
   - openssl
   - openssl-devel
   - zlib-devel
@@ -12,6 +13,6 @@ packages:
   - unzip
   - podman
 
-pip_packages:
+common_pip_packages:
   - pyyaml
   - python-dotenv

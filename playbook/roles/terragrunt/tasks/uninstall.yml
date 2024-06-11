@@ -1,9 +1,11 @@
-
+---
 - name: Uninstall Terragrunt
+  tags:
+    - uninstall
   block:
     - name: Remove files
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       with_items:
-        - "{{ dest_path }}"
+        - "{{ terragrunt_dest_path }}"

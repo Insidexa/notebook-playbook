@@ -1,9 +1,11 @@
-
+---
 - name: Uninstall Helm
+  tags:
+    - uninstall
   block:
-    - name: delete binary
-      file:
+    - name: Delete binary
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       with_items:
-        - "/usr/local/bin/helm"
+        - /usr/local/bin/helm

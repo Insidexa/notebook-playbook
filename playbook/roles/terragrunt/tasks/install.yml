@@ -1,23 +1,22 @@
-
+---
 - name: Install Terragrunt
+  tags:
+    - install
   block:
     - name: Check if Terragrunt is installed
-      stat:
-        path: "{{ dest_path }}"
+      ansible.builtin.stat:
+        path: "{{ terragrunt_dest_path }}"
       register: tg_is_installed
 
     - name: Download Terragrunt
       ansible.builtin.get_url:
-        url: "{{ download_url }}"
-        dest: "{{ dest_path }}"
-      when: tg_is_installed.stat.exists == False
-
-    - name: Ensure the Terragrunt file is executable
-      ansible.builtin.file:
-        path: "{{ dest_path }}"
-        mode: '0755'
+        url: "{{ terragrunt_download_url }}"
+        dest: "{{ terragrunt_dest_path }}"
+        mode: "0755"
       when: not tg_is_installed.stat.exists
 
-    - name: Terragrunt version
-      ansible.builtin.shell:
+    - name: Check Terragrunt version
+      ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'terragrunt --version'"
+      register: get_terragrunt_version_output
+      changed_when: get_terragrunt_version_output.rc != 0

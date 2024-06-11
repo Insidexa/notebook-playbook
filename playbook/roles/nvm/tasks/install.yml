@@ -1,31 +1,48 @@
+---
 - name: Install
+  tags:
+    - install
   block:
+    - name: Download installer
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_ver }}/install.sh
+        dest: /tmp/install_nvm.sh
+        mode: "0755"
+
     - name: Install NVM
-      ansible.builtin.shell: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_ver }}/install.sh | bash"
-      args:
-        creates: "{{ nvm_dir_path }}/nvm.sh"
+      ansible.builtin.command: bash /tmp/install_nvm.sh
+      register: install_nvm_output
+      changed_when: install_nvm_output.rc != 0
 
     - name: Add NVM to nvm_profile
       ansible.builtin.blockinfile:
         block: |
           export NVM_DIR="$HOME/{{ nvm_dir_name }}"
           [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
-        marker_begin: "NVM START"
-        marker_end: "NVM END"
-        mode: 0644
+        marker_begin: NVM START
+        marker_end: NVM END
+        mode: "0644"
         path: "{{ user_home }}/.zshrc"
         state: present
 
     - name: Check version
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: "{{ zsh_shell_cmd }} 'nvm --version'"
+      register: get_nvm_version_output
+      changed_when: get_nvm_version_output.rc != 0
 
-- name: "Install {{ node_ver }} NodeJS"
+- name: Install NodeJS {{ nvm_node_ver }}
+  tags:
+    - install
   block:
-    - name: install
-      ansible.builtin.shell:
-        cmd: "{{ zsh_shell_cmd }} 'nvm install {{ node_ver }}' "
+    - name: Install
+      ansible.builtin.command:
+        cmd: "{{ zsh_shell_cmd }} 'nvm install {{ nvm_node_ver }}'"
+      register: install_specific_node_version_output
+      changed_when: install_specific_node_version_output.rc != 0
 
-    - name: use
-      ansible.builtin.shell:
-        cmd: "{{ zsh_shell_cmd }} 'nvm use {{ node_ver }}'"
+    - name: Use
+      ansible.builtin.command:
+        cmd: "{{ zsh_shell_cmd }} 'nvm use {{ nvm_node_ver }}'"
+      register: set_nvm_node_version_output
+      changed_when: set_nvm_node_version_output.rc != 0
