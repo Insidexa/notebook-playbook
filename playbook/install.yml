@@ -45,8 +45,14 @@
               - hashicorp.hcl
               - hashicorp.terraform
               - visualstudioexptteam.vscodeintellicode
-              - technosophos.vscode-helm
               - shakram02.bash-beautify
+              - ms-azuretools.vscode-docker
+              - k--kato.intellij-idea-keybindings
+              - ms-kubernetes-tools.vscode-kubernetes-tools
+              - ms-python.python
+              - redhat.vscode-yaml
+              - formulahendry.code-runner
+              - jetmartin.bats
       tags:
         - vscode_install
         - install
