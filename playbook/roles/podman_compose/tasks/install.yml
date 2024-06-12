@@ -6,7 +6,7 @@
     - name: Install via cURL
       ansible.builtin.get_url:
         url: "{{ podman_compose_download_url }}"
-        dest: "{{ user_home }}/{{ podman_compose_dest_path }}"
+        dest: "{{ podman_compose_dest_path }}"
         mode: "0755"
 
     - name: Version
