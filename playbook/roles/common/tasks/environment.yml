@@ -5,6 +5,6 @@
   block:
     - name: Create .local/bin dir
       ansible.builtin.file:
-        path: "{{ user_home }}/{{ local_bin_dir }}"
+        path: "{{ local_bin_dir }}"
         state: directory
         mode: "0755"
