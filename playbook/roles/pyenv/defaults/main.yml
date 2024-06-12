@@ -1,2 +1,5 @@
 ---
 pyenv_python_version: 3.12.0
+pyenv_packages:
+  - pyyaml
+  - python-dotenv
