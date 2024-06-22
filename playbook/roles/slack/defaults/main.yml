@@ -1,0 +1,4 @@
+---
+slack_tmp_directory: /tmp
+slack_release_url: https://downloads.slack-edge.com/desktop-releases/linux/x64/4.38.125/slack-4.38.125-0.1.el8.x86_64.rpm
+slack_gpg_url: https://slack.com/gpg/slack_pubkey_20230710.gpg

@@ -33,4 +33,6 @@
 
     - role: vscode_uninstall
 
+    - role: slack
+
     - role: common

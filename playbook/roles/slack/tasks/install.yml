@@ -1,0 +1,30 @@
+---
+- name: Check if Slack is installed
+  ansible.builtin.stat:
+    path: /usr/bin/slack
+  register: slack_installed
+  tags:
+    - install
+
+- name: Install Slack
+  when: not slack_installed.stat.exists
+  tags:
+    - install
+  block:
+    - name: Download rpm
+      ansible.builtin.get_url:
+        url: "{{ slack_release_url }}"
+        dest: "{{ slack_tmp_directory }}/slack.rpm"
+        mode: "0755"
+
+    - name: Import gpg
+      become: true
+      ansible.builtin.rpm_key:
+        key: "{{ slack_gpg_url }}"
+        state: present
+
+    - name: Install
+      become: true
+      ansible.builtin.dnf:
+        name: "{{ slack_tmp_directory }}/slack.rpm"
+        state: present

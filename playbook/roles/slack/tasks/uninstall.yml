@@ -1,0 +1,29 @@
+- name: Uninstall Slack
+  tags:
+    - uninstall
+  block:
+    - name: Remove package
+      become: true
+      ansible.builtin.dnf:
+        name: "slack"
+        state: absent
+
+    - name: Remove Slack config
+      become: true
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+        force: true
+      with_items:
+        - "{{ user_home }}/.config/Slack"
+        - "/etc/cron.daily/slack"
+        - "/usr/lib/slack/"
+        - "/usr/share/applications/slack.desktop"
+        - "/usr/share/metainfo/slack.metainfo.xml"
+        - "/usr/share/pixmaps/slack.png"
+
+    - name: Delete gpg
+      become: true
+      ansible.builtin.rpm_key:
+        key: "{{ slack_gpg_url }}"
+        state: absent
