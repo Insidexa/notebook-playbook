@@ -12,5 +12,6 @@ common_packages:
   - zip
   - unzip
   - podman
+  - vlc
 
 common_pip_packages:
