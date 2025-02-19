@@ -13,5 +13,8 @@ common_packages:
   - unzip
   - podman
   - vlc
+  - flameshot
+  - libconfig-devel
+  - libevdev-devel
 
 common_pip_packages:
