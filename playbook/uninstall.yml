@@ -9,29 +9,29 @@
     # priority
     - role: oh_my_zsh
 
-    - role: awscdk
+    # - role: awscdk
 
-    - role: nvm
+    # - role: nvm
 
     # any order
     - role: nix
 
-    - role: awscli
-      become: true
+    # - role: awscli
+    #   become: true
 
-    - role: kubectl
-      become: true
+    # - role: kubectl
+    #   become: true
 
-    - role: helm
-      become: true
+    # - role: helm
+    #   become: true
 
-    - role: terragrunt
+    # - role: terragrunt
 
-    - role: tfenv
+    # - role: tfenv
 
-    - role: podman_compose
+    # - role: podman_compose
 
-    - role: pyenv
+    # - role: pyenv
 
     - role: vscode_uninstall
 
