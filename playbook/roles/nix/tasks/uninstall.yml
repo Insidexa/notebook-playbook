@@ -14,6 +14,12 @@
         - nix-daemon.service
         - nix-daemon.socket
 
+    - name: Check if backup files exist
+      stat:
+        path: "{{ item.backup }}"
+      register: backup_stat
+      loop: "{{ nix_bash_changes }}"
+
     - name: Restore backup files
       shell: mv "{{ item.item.backup }}" "{{ item.item.original }}"
       become: true
