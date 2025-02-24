@@ -27,14 +27,17 @@
 
     - name: Remove SELinux Nix policy
       command: semodule -r {{ selinux_policy_name }}
+      ignore_errors: true
 
     - name: Delete SELinux policy file
       file:
         path: "{{ selinux_policy_file }}"
         state: absent
+      ignore_errors: true
 
     - name: Relabel file system to default
       command: restorecon -R /nix
+      ignore_errors: true
 
     - name: Remove Nix directories
       file:
@@ -48,8 +51,10 @@
         state: absent
         remove: yes
       loop: "{{ range(1, 33) | list }}"
+      ignore_errors: true
 
     - name: Delete nixbld group
       group:
         name: nixbld
         state: absent
+      ignore_errors: true
