@@ -1,0 +1,85 @@
+let
+  # Import nixpkgs
+  pkgs = import <nixpkgs> {
+    config = {
+      allowUnfree = true;
+    };
+  };
+in
+
+pkgs.mkShell {
+  buildInputs = with pkgs; [
+    # Core tools
+    kubectl
+    kubernetes-helm
+    podman
+    podman-compose
+    terragrunt
+    terramate
+    terraform
+    
+    # Cloud and DevOps
+    awscli2
+    nodePackages.aws-cdk
+    google-cloud-sdk
+    azure-cli
+    ansible
+    ansible-lint
+    
+    # Languages
+    python3
+    nodejs
+    yarn
+    
+    # Shell and utils
+    zsh
+    zsh-autocomplete
+    zsh-powerlevel10k
+    zsh-completions
+    zsh-autosuggestions
+    zsh-navigation-tools
+    zsh-syntax-highlighting
+    oh-my-zsh
+    fzf
+
+    git
+    wget
+    curl
+    openssh
+    jq
+  ];
+
+  shellHook = ''
+    export ZDOTDIR="$PWD/.zsh"
+    mkdir -p "$ZDOTDIR"
+
+    cat > "$ZDOTDIR/.zshrc" << 'EOF'
+    # Oh My Zsh setup
+    export ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh
+    ZSH_THEME="robbyrussell"
+    plugins=(git)
+    fpath+=${pkgs.zsh-completions}/share/zsh/site-functions/
+    export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+
+    # Load plugins
+    source $ZSH/oh-my-zsh.sh
+    source ${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    source ${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    source ${pkgs.zsh-autocomplete}/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+    source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
+    source ${pkgs.zsh-navigation-tools}/share/zsh/site-functions/zsh-navigation-tools.plugin.zsh
+
+    # Aliases
+    alias k='kubectl'
+    alias pc='podman-compose'
+
+    # AWS Profile helper
+    aws-profile() {
+      export AWS_PROFILE=$1
+      echo "Switched to AWS profile: $AWS_PROFILE"
+    }
+    EOF
+
+    exec zsh
+  '';
+}

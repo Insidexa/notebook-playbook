@@ -1,0 +1,12 @@
+---
+- name: Nix installation tasks
+  ansible.builtin.include_tasks: install.yml
+  tags:
+    - nix_install
+    - install
+
+- name: Nix uninstallation tasks
+  ansible.builtin.include_tasks: uninstall.yml
+  tags:
+    - nix_uninstall
+    - uninstall

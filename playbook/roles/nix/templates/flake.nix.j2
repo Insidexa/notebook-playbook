@@ -1,0 +1,120 @@
+{
+  description = "DevOps development environment";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+  };
+
+  outputs = { self, nixpkgs, flake-utils }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          config = {
+            allowUnfree = true;
+            allowUnfreePredicate = pkg: builtins.elem (pkg.pname or pkg.name) [
+              "terraform"
+              "terraform-ls"
+              "terraform-providers"
+              "google-cloud-sdk"
+            ];
+          };
+        };
+      in
+      {
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            # Kubernetes tools
+            kubectl
+            kubernetes-helm
+
+            # Container tools
+            podman
+            podman-compose
+
+            # # Infrastructure as Code
+            # terraform
+            terragrunt
+            terramate
+
+            # Cloud tools
+            awscli2
+            nodePackages.aws-cdk
+            google-cloud-sdk
+            azure-cli
+
+            # Configuration management
+            ansible
+            ansible-lint
+
+            # Programming languages
+            python3
+            nodejs
+            yarn
+
+            # Development tools
+            git
+            jq
+
+            # Shell tools
+            zsh
+            zsh-autocomplete
+            zsh-powerlevel10k
+            zsh-completions
+            zsh-autosuggestions
+            zsh-navigation-tools
+            zsh-syntax-highlighting
+            oh-my-zsh
+            fzf
+
+            # extra
+            wget
+            curl
+            openssh
+          ];
+
+          preShellHook = ''
+            # ZSH configuration
+            export ZDOTDIR="$PWD/.zsh"
+            mkdir -p "$ZDOTDIR"
+            
+            # Create temporary .zshrc
+            cat > "$ZDOTDIR/.zshrc" << 'EOF'
+            export ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh
+            # Set theme
+            ZSH_THEME="robbyrussell"
+            plugins=(git)
+            fpath+=${pkgs.zsh-completions}/share/zsh/site-functions/
+            export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+
+            source ${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+            source ${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+            source ${pkgs.zsh-autocomplete}/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+            source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
+            source ${pkgs.zsh-navigation-tools}/share/zsh/site-functions/zsh-navigation-tools.plugin.zsh
+
+            source $ZSH/oh-my-zsh.sh
+
+            # Kubernetes aliases
+            alias k='kubectl'
+
+            # AWS Profile helper
+            aws-profile() {
+              export AWS_PROFILE=$1
+              echo "Switched to AWS profile: $AWS_PROFILE"
+            }
+
+            # Container aliases
+            alias pc='podman-compose'
+            EOF
+          '';
+
+          shellHook = ''
+            # Start zsh
+            exec zsh
+          '';
+        };
+      }
+    );
+}
