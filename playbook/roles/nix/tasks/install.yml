@@ -33,8 +33,8 @@
 
     - name: Set SELinux file contexts for Nix
       become: true
-      command: "sudo semanage fcontext -a -t {{ setype }} '{{ target }}'"
-      loop: semanage_rules
+      command: "sudo semanage fcontext -a -t {{ item.setype }} '{{ item.target }}'"
+      loop: "{{ semanage_rules }}"
 
     - name: Copy Nix SELinux policy template
       become: true
@@ -97,4 +97,7 @@
       shell: |
         . /etc/profile.d/nix.sh
         nix --version
+
+        nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
+        nix-channel --update nixpkgs
         nix-shell --packages nodejs --run "node -v"

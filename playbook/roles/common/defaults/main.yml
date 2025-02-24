@@ -1,22 +1,26 @@
 ---
-common_packages:
-  - "@Development Tools"
+persistent_packages:
+  - libffi-devel
   - openssl
   - openssl-devel
+  - zip
+  - unzip
+  - tar
+  - git
+  - telnet
+  - curl
+  - wget
+  - xz
+
+common_packages:
+  - "@Development Tools"
   - zlib-devel
   - bzip2
   - bzip2-devel
   - readline-devel
   - sqlite
   - sqlite-devel
-  - zip
-  - unzip
   - vlc
-  - curl
-  - wget
-  - telnet
-  - git
-  - xz
-  - tar
+  - flameshot
 
 common_pip_packages:
