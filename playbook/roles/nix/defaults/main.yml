@@ -4,6 +4,7 @@ nix_download_file_name: "nix-{{ nix_version }}-x86_64-linux"
 nix_install_url: https://releases.nixos.org/nix/nix-{{ nix_version }}/{{ nix_download_file_name }}.tar.xz
 nix_dest_download_path: /tmp/nix.tar.gz
 selinux_policy_file: /etc/selinux/targeted/nix_custom_policy.cil
+selinux_policy_name: nix
 nix_conf_path: /etc/nix/nix.conf
 
 semanage_rules:

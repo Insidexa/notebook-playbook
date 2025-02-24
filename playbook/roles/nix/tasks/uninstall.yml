@@ -22,12 +22,11 @@
 
     - name: Restore backup files
       shell: mv "{{ item.item.backup }}" "{{ item.item.original }}"
-      become: true
       when: item.stat.exists
       loop: "{{ backup_stat.results }}"
 
     - name: Remove SELinux Nix policy
-      command: semodule -r local_nix_policy
+      command: semodule -r {{ selinux_policy_name }}
 
     - name: Delete SELinux policy file
       file:

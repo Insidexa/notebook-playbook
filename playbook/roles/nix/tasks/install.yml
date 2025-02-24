@@ -39,25 +39,25 @@
     - name: Copy Nix SELinux policy template
       become: true
       template:
-        src: nix.te
-        dest: /tmp/nix.te
+        src: selinux_nix.te
+        dest: /tmp/{{ selinux_policy_name }}.te
         mode: '0644'
 
     - name: Compile SELinux policy
       become: true
-      command: checkmodule -M -m -o /tmp/nix.mod /tmp/nix.te
+      command: checkmodule -M -m -o /tmp/{{ selinux_policy_name }}.mod /tmp/{{ selinux_policy_name }}.te
       args:
-        creates: /tmp/nix.mod
+        creates: /tmp/{{ selinux_policy_name }}.mod
 
     - name: Create SELinux policy package
       become: true
-      command: semodule_package -o /tmp/nix.pp -m /tmp/nix.mod
+      command: semodule_package -o /tmp/{{ selinux_policy_name }}.pp -m /tmp/{{ selinux_policy_name }}.mod
       args:
-        creates: /tmp/nix.pp
+        creates: /tmp/{{ selinux_policy_name }}.pp
 
     - name: Install SELinux policy
       become: true
-      command: semodule -i /tmp/nix.pp
+      command: semodule -i /tmp/{{ selinux_policy_name }}.pp
       register: selinux_result
       changed_when: selinux_result.rc == 0
 
