@@ -22,5 +22,7 @@ common_packages:
   - sqlite-devel
   - vlc
   - flameshot
+  - libconfig-devel
+  - libevdev-devel
 
 common_pip_packages:
