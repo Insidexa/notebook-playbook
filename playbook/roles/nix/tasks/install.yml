@@ -1,0 +1,100 @@
+---
+- name: Check if Nix was installed
+  ansible.builtin.stat:
+    path: "~/.nix-profile/bin/nix"
+  register: nix_installed
+  tags:
+    - install
+
+- name: Install Nix
+  when: not nix_installed.stat.exists
+  tags:
+    - install
+  block:
+    - name: Download Nix archive
+      get_url:
+        url: "{{ nix_install_url }}"
+        dest: "{{ nix_dest_download_path }}"
+
+    - name: Unpack nix
+      ansible.builtin.unarchive:
+        src: "{{ nix_dest_download_path }}"
+        dest: /tmp/
+        remote_src: yes
+        extra_opts: [--no-same-owner]
+
+    - name: Set SELinux mode to permissive
+      become: true
+      command: setenforce 0
+      ignore_errors: true
+
+    - name: Install Nix
+      command: /tmp/{{ nix_download_file_name }}/install --daemon --yes
+
+    - name: Set SELinux file contexts for Nix
+      become: true
+      command: "sudo semanage fcontext -a -t {{ setype }} '{{ target }}'"
+      loop: semanage_rules
+
+    - name: Copy Nix SELinux policy template
+      become: true
+      template:
+        src: nix.te
+        dest: /tmp/nix.te
+        mode: '0644'
+
+    - name: Compile SELinux policy
+      become: true
+      command: checkmodule -M -m -o /tmp/nix.mod /tmp/nix.te
+      args:
+        creates: /tmp/nix.mod
+
+    - name: Create SELinux policy package
+      become: true
+      command: semodule_package -o /tmp/nix.pp -m /tmp/nix.mod
+      args:
+        creates: /tmp/nix.pp
+
+    - name: Install SELinux policy
+      become: true
+      command: semodule -i /tmp/nix.pp
+      register: selinux_result
+      changed_when: selinux_result.rc == 0
+
+    - name: Verify SELinux policy installation
+      become: true
+      command: semodule -l
+      register: semodule_list
+      changed_when: false
+
+    - name: Debug installed SELinux policies
+      debug:
+        msg: "{{ semodule_list.stdout_lines | select('search', 'nix') | list }}"
+
+    - name: Relabel file system
+      become: true
+      command: restorecon -R /nix
+
+    - name: Set SELinux mode to enforce
+      become: true
+      command: setenforce 1
+
+    - name: Enable nix-command and flakes globally
+      become: true
+      lineinfile:
+        path: "{{ nix_conf_path }}"
+        line: "experimental-features = nix-command flakes"
+        create: yes
+
+    - name: Restart Nix daemon
+      become: true
+      systemd:
+        name: nix-daemon.service
+        state: restarted
+        enabled: yes
+
+    - name: Check Nix
+      shell: |
+        . /etc/profile.d/nix.sh
+        nix --version
+        nix-shell --packages nodejs --run "node -v"

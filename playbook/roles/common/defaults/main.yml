@@ -11,7 +11,12 @@ common_packages:
   - sqlite-devel
   - zip
   - unzip
-  - podman
   - vlc
+  - curl
+  - wget
+  - telnet
+  - git
+  - xz
+  - tar
 
 common_pip_packages:
