@@ -12,89 +12,90 @@
     - install
   block:
     - name: Download Nix archive
-      get_url:
+      ansible.builtin.get_url:
         url: "{{ nix_install_url }}"
         dest: "{{ nix_dest_download_path }}"
+        mode: '0644'
 
     - name: Unpack nix
       ansible.builtin.unarchive:
         src: "{{ nix_dest_download_path }}"
         dest: /tmp/
-        remote_src: yes
+        remote_src: true
         extra_opts: [--no-same-owner]
 
     - name: Set SELinux mode to permissive
       become: true
-      command: setenforce 0
+      ansible.builtin.command: setenforce 0
       ignore_errors: true
 
     - name: Install Nix
-      command: /tmp/{{ nix_download_file_name }}/install --daemon --yes
+      ansible.builtin.command: /tmp/{{ nix_download_file_name }}/install --daemon --yes
 
     - name: Set SELinux file contexts for Nix
       become: true
-      command: "sudo semanage fcontext -a -t {{ item.setype }} '{{ item.target }}'"
+      ansible.builtin.command: "sudo semanage fcontext -a -t {{ item.setype }} '{{ item.target }}'"
       loop: "{{ semanage_rules }}"
 
     - name: Copy Nix SELinux policy template
       become: true
-      template:
+      ansible.builtin.template:
         src: selinux_nix.te
-        dest: /tmp/{{ selinux_policy_name }}.te
+        dest: /tmp/{{ nix_selinux_policy_name }}.te
         mode: '0644'
 
     - name: Compile SELinux policy
       become: true
-      command: checkmodule -M -m -o /tmp/{{ selinux_policy_name }}.mod /tmp/{{ selinux_policy_name }}.te
+      ansible.builtin.command: checkmodule -M -m -o /tmp/{{ nix_selinux_policy_name }}.mod /tmp/{{ nix_selinux_policy_name }}.te
       args:
-        creates: /tmp/{{ selinux_policy_name }}.mod
+        creates: /tmp/{{ nix_selinux_policy_name }}.mod
 
     - name: Create SELinux policy package
       become: true
-      command: semodule_package -o /tmp/{{ selinux_policy_name }}.pp -m /tmp/{{ selinux_policy_name }}.mod
+      ansible.builtin.command: semodule_package -o /tmp/{{ nix_selinux_policy_name }}.pp -m /tmp/{{ nix_selinux_policy_name }}.mod
       args:
-        creates: /tmp/{{ selinux_policy_name }}.pp
+        creates: /tmp/{{ nix_selinux_policy_name }}.pp
 
     - name: Install SELinux policy
       become: true
-      command: semodule -i /tmp/{{ selinux_policy_name }}.pp
+      ansible.builtin.command: semodule -i /tmp/{{ nix_selinux_policy_name }}.pp
       register: selinux_result
       changed_when: selinux_result.rc == 0
 
     - name: Verify SELinux policy installation
       become: true
-      command: semodule -l
+      ansible.builtin.command: semodule -l
       register: semodule_list
       changed_when: false
 
     - name: Debug installed SELinux policies
-      debug:
+      ansible.builtin.debug:
         msg: "{{ semodule_list.stdout_lines | select('search', 'nix') | list }}"
 
     - name: Relabel file system
       become: true
-      command: restorecon -R /nix
+      ansible.builtin.command: restorecon -R /nix
 
     - name: Set SELinux mode to enforce
       become: true
-      command: setenforce 1
+      ansible.builtin.command: setenforce 1
 
     - name: Enable nix-command and flakes globally
       become: true
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: "{{ nix_conf_path }}"
         line: "experimental-features = nix-command flakes"
-        create: yes
+        create: true
 
     - name: Restart Nix daemon
       become: true
-      systemd:
+      ansible.builtin.systemd:
         name: nix-daemon.service
         state: restarted
-        enabled: yes
+        enabled: true
 
     - name: Check Nix
-      shell: |
+      ansible.builtin.command: |
         . /etc/profile.d/nix.sh
         nix --version
 

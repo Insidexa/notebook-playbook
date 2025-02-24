@@ -8,53 +8,53 @@
       ansible.builtin.systemd:
         name: "{{ item }}"
         state: stopped
-        enabled: no
+        enabled: false
       ignore_errors: true
       loop:
         - nix-daemon.service
         - nix-daemon.socket
 
     - name: Check if backup files exist
-      stat:
+      ansible.builtin.stat:
         path: "{{ item.backup }}"
       register: backup_stat
       loop: "{{ nix_bash_changes }}"
 
     - name: Restore backup files
-      shell: mv "{{ item.item.backup }}" "{{ item.item.original }}"
+      ansible.builtin.command: mv "{{ item.item.backup }}" "{{ item.item.original }}"
       when: item.stat.exists
       loop: "{{ backup_stat.results }}"
 
     - name: Remove SELinux Nix policy
-      command: semodule -r {{ selinux_policy_name }}
+      ansible.builtin.command: semodule -r {{ nix_selinux_policy_name }}
       ignore_errors: true
 
     - name: Delete SELinux policy file
-      file:
-        path: "{{ selinux_policy_file }}"
+      ansible.builtin.file:
+        path: "{{ nix_selinux_policy_file }}"
         state: absent
       ignore_errors: true
 
     - name: Relabel file system to default
-      command: restorecon -R /nix
+      ansible.builtin.command: restorecon -R /nix
       ignore_errors: true
 
     - name: Remove Nix directories
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop: "{{ nix_files }}"
 
     - name: Delete nixbld users
-      user:
+      ansible.builtin.user:
         name: "nixbld{{ item }}"
         state: absent
-        remove: yes
+        remove: true
       loop: "{{ range(1, 33) | list }}"
       ignore_errors: true
 
     - name: Delete nixbld group
-      group:
+      ansible.builtin.group:
         name: nixbld
         state: absent
       ignore_errors: true
