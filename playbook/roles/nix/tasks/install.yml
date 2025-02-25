@@ -86,6 +86,9 @@
         path: "{{ nix_conf_path }}"
         line: "experimental-features = nix-command flakes"
         create: true
+        mode: '0644'
+        owner: root
+        group: root
 
     - name: Restart Nix daemon
       become: true
