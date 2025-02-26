@@ -121,8 +121,7 @@
         enabled: true
 
     - name: Add Nix unstable
-      become_user: "{{ ansible_user_id }}"
-      ansible.builtin.command: |
+      ansible.builtin.shell: |
         . /etc/profile.d/nix.sh
 
         nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
@@ -130,7 +129,7 @@
       changed_when: false
 
     - name: Verify Nix installation
-      ansible.builtin.command: |
+      ansible.builtin.shell: |
         . /etc/profile.d/nix.sh
         nix --version
 
