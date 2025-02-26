@@ -23,7 +23,7 @@
     - name: Prepare structured file information
       ansible.builtin.set_fact:
         backup_stat: "{{ file_stats.results[: nix_bash_changes | length] }}"
-        original_stat: "{{ file_stats.results[nix_bash_changes | length: ] }}"
+        original_stat: "{{ file_stats.results[nix_bash_changes | length :] }}"
 
     - name: Restore original files from backup if they exist
       ansible.builtin.copy:

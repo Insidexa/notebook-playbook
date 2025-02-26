@@ -1,5 +1,5 @@
 ---
-persistent_packages:
+common_persistent_packages:
   - libffi-devel
   - openssl
   - openssl-devel
