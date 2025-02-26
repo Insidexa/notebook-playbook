@@ -84,14 +84,24 @@
               ansible.builtin.command: semodule -i /etc/selinux/{{ nix_selinux_policy_name }}.pp
               changed_when: true
 
-    #     - name: Restore SELinux labels for /nix
-    #       ansible.builtin.command: restorecon -R /nix
-    #       changed_when: false  # Ensure idempotency
+    - name: Check if SELinux labels need to be restored for /nix
+      become: true
+      ansible.builtin.command: "matchpathcon /nix"
+      register: selinux_labels
+      changed_when: false
+      failed_when: selinux_labels.rc != 0  # Fail only if the command itself errors out
 
-    #     - name: Ensure SELinux is enforcing again
-    #       ansible.builtin.command: setenforce 1
-    #       when: ansible_selinux.status == "enabled"
-    #       changed_when: false  # Only runs if necessary
+    - name: Relabel file system if required
+      become: true
+      ansible.builtin.command: restorecon -R /nix
+      when: "'system_u:object_r:nix_var_t:s0' not in selinux_labels.stdout"
+      changed_when: true
+
+    - name: Ensure SELinux is in enforcing mode
+      become: true
+      ansible.builtin.command: setenforce 1
+      register: selinux_enforce
+      changed_when: "'Enforcing' not in selinux_enforce.stdout"
 
     # - name: Enable Nix flakes and commands globally
     #   become: true
