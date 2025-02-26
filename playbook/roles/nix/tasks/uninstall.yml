@@ -53,23 +53,30 @@
       loop: "{{ nix_files }}"
 
     - name: Check if nixbld users exist
-      ansible.builtin.getent:
-        database: passwd
+      ansible.builtin.command: getent passwd nixbld{{ item }}
+      register: nixbld_check
+      ignore_errors: true
+      changed_when: false
+      loop: "{{ range(1, 33) | list }}"
 
     - name: Delete nixbld users if they exist
       ansible.builtin.user:
-        name: "nixbld{{ item }}"
+        name: "nixbld{{ item.item }}"
         state: absent
         remove: true
-      when: "('nixbld' ~ item) in ansible_facts.getent_passwd"
-      loop: "{{ range(1, 33) | list }}"
+      when: nixbld_check.results[item.index].rc == 0
+      loop: "{{ nixbld_check.results | list }}"
+      loop_control:
+        index_var: index
 
     - name: Check if nixbld group exists
-      ansible.builtin.getent:
-        database: group
+      ansible.builtin.command: getent group nixbld
+      register: nixbld_check
+      changed_when: false
+      failed_when: nixbld_check.rc > 1  # Ignore if group does not exist
 
     - name: Delete nixbld group if it exists
       ansible.builtin.group:
         name: nixbld
         state: absent
-      when: "'nixbld' in ansible_facts.getent_group"
+      when: nixbld_check.rc == 0
