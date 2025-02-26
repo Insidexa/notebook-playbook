@@ -4,57 +4,66 @@
   tags:
     - uninstall
   block:
-    - name: Stop and disable Nix systemd services
+    - name: Stop and disable Nix systemd services if they exist
       ansible.builtin.systemd:
         name: "{{ item }}"
         state: stopped
         enabled: false
-      ignore_errors: true
+      failed_when: false  # Prevent failures if services are already removed
       loop:
         - nix-daemon.service
         - nix-daemon.socket
 
-    - name: Check if backup files exist
-      ansible.builtin.stat:
-        path: "{{ item.backup }}"
-      register: backup_stat
-      loop: "{{ nix_bash_changes }}"
-
-    - name: Restore backup files
-      ansible.builtin.command: mv "{{ item.item.backup }}" "{{ item.item.original }}"
+    - name: Restore backup files if they exist
+      ansible.builtin.command:
+        cmd: mv "{{ item.item.backup }}" "{{ item.item.original }}"
       when: item.stat.exists
-      loop: "{{ backup_stat.results }}"
+      loop: "{{ query('ansible.builtin.stat', nix_bash_changes | map(attribute='backup')) }}"
 
-    - name: Remove SELinux Nix policy
+    - name: Check if Nix SELinux policy is installed
+      ansible.builtin.command: semodule -l
+      register: semodule_list
+      changed_when: false
+
+    - name: Remove SELinux Nix policy if installed
       ansible.builtin.command: semodule -r {{ nix_selinux_policy_name }}
-      ignore_errors: true
+      when: nix_selinux_policy_name in semodule_list.stdout
+      changed_when: true
 
-    - name: Delete SELinux policy file
+    - name: Delete SELinux policy file if it exists
       ansible.builtin.file:
         path: "{{ nix_selinux_policy_file }}"
         state: absent
-      ignore_errors: true
 
-    - name: Relabel file system to default
+    - name: Relabel /nix filesystem to default if it exists
       ansible.builtin.command: restorecon -R /nix
-      ignore_errors: true
+      when: nix_files | length > 0
+      changed_when: false
 
-    - name: Remove Nix directories
+    - name: Remove Nix directories if they exist
       ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop: "{{ nix_files }}"
 
-    - name: Delete nixbld users
+    - name: Check if nixbld users exist
+      ansible.builtin.getent:
+        database: passwd
+
+    - name: Delete nixbld users if they exist
       ansible.builtin.user:
         name: "nixbld{{ item }}"
         state: absent
         remove: true
+      when: "('nixbld' ~ item) in ansible_facts.getent_passwd"
       loop: "{{ range(1, 33) | list }}"
-      ignore_errors: true
 
-    - name: Delete nixbld group
+    - name: Check if nixbld group exists
+      ansible.builtin.getent:
+        database: group
+
+    - name: Delete nixbld group if it exists
       ansible.builtin.group:
         name: nixbld
         state: absent
-      ignore_errors: true
+      when: "'nixbld' in ansible_facts.getent_group"

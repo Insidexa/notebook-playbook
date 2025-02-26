@@ -1,86 +1,59 @@
 ---
-- name: Check if Nix was installed
-  ansible.builtin.stat:
-    path: "~/.nix-profile/bin/nix"
-  register: nix_installed
-  tags:
-    - install
-
-- name: Install Nix
-  when: not nix_installed.stat.exists
+- name: Ensure Nix is installed
   tags:
     - install
   block:
-    - name: Download Nix archive
-      ansible.builtin.get_url:
-        url: "{{ nix_install_url }}"
-        dest: "{{ nix_dest_download_path }}"
-        mode: '0644'
+    - name: Check if Nix store exists
+      ansible.builtin.stat:
+        path: /nix/store
+      register: nix_store
 
-    - name: Unpack nix
-      ansible.builtin.unarchive:
-        src: "{{ nix_dest_download_path }}"
-        dest: /tmp/
-        remote_src: true
-        extra_opts: [--no-same-owner]
+    - name: Download and install Nix
+      when: not nix_store.stat.exists
+      block:
+        - name: Download Nix archive
+          ansible.builtin.get_url:
+            url: "{{ nix_install_url }}"
+            dest: "{{ nix_dest_download_path }}"
+            mode: '0644'
 
-    - name: Set SELinux mode to permissive
+        - name: Unpack Nix
+          ansible.builtin.unarchive:
+            src: "{{ nix_dest_download_path }}"
+            dest: /tmp/
+            remote_src: true
+            extra_opts: [--no-same-owner]
+
+        - name: Set SELinux mode to permissive temporarily
+          become: true
+          ansible.builtin.command: setenforce 0
+          register: selinux_result
+          failed_when: selinux_result.rc != 0 and "SELinux is disabled" not in selinux_result.stderr
+          changed_when: false
+
+        - name: Install Nix
+          ansible.builtin.command: /tmp/{{ nix_download_file_name }}/install --daemon --yes
+          args:
+            creates: /nix/store  # Prevent reinstallation if it already exists
+
+    - name: Configure SELinux for Nix
       become: true
-      ansible.builtin.command: setenforce 0
-      ignore_errors: true
+      block:
+        - name: Ensure SELinux policies for Nix
+          ansible.builtin.command: semodule -i /tmp/{{ nix_selinux_policy_name }}.pp
+          args:
+            creates: /etc/selinux/targeted/active/modules/100/nix.pp  # Prevent redundant installations
 
-    - name: Install Nix
-      ansible.builtin.command: /tmp/{{ nix_download_file_name }}/install --daemon --yes
+        - name: Restore SELinux labels for /nix
+          ansible.builtin.command: restorecon -R /nix
+          changed_when: false  # Ensure idempotency
 
-    - name: Set SELinux file contexts for Nix
-      become: true
-      ansible.builtin.command: "sudo semanage fcontext -a -t {{ item.setype }} '{{ item.target }}'"
-      loop: "{{ semanage_rules }}"
+        - name: Ensure SELinux is enforcing again
+          ansible.builtin.command: setenforce 1
+          when: ansible_selinux.status == "enabled"
+          changed_when: false  # Only runs if necessary
 
-    - name: Copy Nix SELinux policy template
-      become: true
-      ansible.builtin.template:
-        src: selinux_nix.te
-        dest: /tmp/{{ nix_selinux_policy_name }}.te
-        mode: '0644'
-
-    - name: Compile SELinux policy
-      become: true
-      ansible.builtin.command: checkmodule -M -m -o /tmp/{{ nix_selinux_policy_name }}.mod /tmp/{{ nix_selinux_policy_name }}.te
-      args:
-        creates: /tmp/{{ nix_selinux_policy_name }}.mod
-
-    - name: Create SELinux policy package
-      become: true
-      ansible.builtin.command: semodule_package -o /tmp/{{ nix_selinux_policy_name }}.pp -m /tmp/{{ nix_selinux_policy_name }}.mod
-      args:
-        creates: /tmp/{{ nix_selinux_policy_name }}.pp
-
-    - name: Install SELinux policy
-      become: true
-      ansible.builtin.command: semodule -i /tmp/{{ nix_selinux_policy_name }}.pp
-      register: selinux_result
-      changed_when: selinux_result.rc == 0
-
-    - name: Verify SELinux policy installation
-      become: true
-      ansible.builtin.command: semodule -l
-      register: semodule_list
-      changed_when: false
-
-    - name: Debug installed SELinux policies
-      ansible.builtin.debug:
-        msg: "{{ semodule_list.stdout_lines | select('search', 'nix') | list }}"
-
-    - name: Relabel file system
-      become: true
-      ansible.builtin.command: restorecon -R /nix
-
-    - name: Set SELinux mode to enforce
-      become: true
-      ansible.builtin.command: setenforce 1
-
-    - name: Enable nix-command and flakes globally
+    - name: Enable Nix flakes and commands globally
       become: true
       ansible.builtin.lineinfile:
         path: "{{ nix_conf_path }}"
@@ -90,18 +63,13 @@
         owner: root
         group: root
 
-    - name: Restart Nix daemon
+    - name: Enable and restart Nix daemon
       become: true
       ansible.builtin.systemd:
         name: nix-daemon.service
         state: restarted
         enabled: true
 
-    - name: Check Nix
-      ansible.builtin.command: |
-        . /etc/profile.d/nix.sh
-        nix --version
-
-        nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
-        nix-channel --update nixpkgs
-        nix-shell --packages nodejs --run "node -v"
+    - name: Verify Nix installation
+      ansible.builtin.command: nix --version
+      changed_when: false
