@@ -121,6 +121,7 @@
         enabled: true
 
     - name: Add Nix unstable
+      become_user: "{{ ansible_user_id }}"
       ansible.builtin.command: |
         . /etc/profile.d/nix.sh
 
