@@ -65,23 +65,23 @@
             - name: Copy Nix SELinux policy template
               ansible.builtin.template:
                 src: selinux_nix.te
-                dest: "/etc/selinux/{{ nix_selinux_policy_name }}.te"
+                dest: "{{ nix_selinux_policy_file }}.te"
                 mode: '0644'
 
             - name: Compile SELinux policy
               ansible.builtin.command: >
-                checkmodule -M -m -o /etc/selinux/{{ nix_selinux_policy_name }}.mod /etc/selinux/{{ nix_selinux_policy_name }}.te
+                checkmodule -M -m -o {{ nix_selinux_policy_file }}.mod {{ nix_selinux_policy_file }}.te
               args:
-                creates: "/etc/selinux/{{ nix_selinux_policy_name }}.mod"
+                creates: "{{ nix_selinux_policy_file }}.mod"
 
             - name: Create SELinux policy package
               ansible.builtin.command: >
-                semodule_package -o /etc/selinux/{{ nix_selinux_policy_name }}.pp -m /etc/selinux/{{ nix_selinux_policy_name }}.mod
+                semodule_package -o {{ nix_selinux_policy_file }}.pp -m {{ nix_selinux_policy_file }}.mod
               args:
-                creates: "/etc/selinux/{{ nix_selinux_policy_name }}.pp"
+                creates: "{{ nix_selinux_policy_file }}.pp"
 
             - name: Apply SELinux policy
-              ansible.builtin.command: semodule -i /etc/selinux/{{ nix_selinux_policy_name }}.pp
+              ansible.builtin.command: semodule -i {{ nix_selinux_policy_file }}.pp
               changed_when: true
 
     - name: Check if SELinux labels need to be restored for /nix
