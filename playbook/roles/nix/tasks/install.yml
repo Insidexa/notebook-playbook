@@ -34,42 +34,82 @@
         - name: Install Nix
           ansible.builtin.command: /tmp/{{ nix_download_file_name }}/install --daemon --yes
           args:
-            creates: /nix/store  # Prevent reinstallation if it already exists
+            creates: /nix/store
 
-    - name: Configure SELinux for Nix
+    - name: Configure SELinux context for Nix
       become: true
       block:
-        - name: Ensure SELinux policies for Nix
-          ansible.builtin.command: semodule -i /tmp/{{ nix_selinux_policy_name }}.pp
-          args:
-            creates: /etc/selinux/targeted/active/modules/100/nix.pp  # Prevent redundant installations
+        - name: Check existing SELinux file contexts for Nix
+          ansible.builtin.command: semanage fcontext -l
+          register: semanage_check
+          changed_when: false
 
-        - name: Restore SELinux labels for /nix
-          ansible.builtin.command: restorecon -R /nix
-          changed_when: false  # Ensure idempotency
+        - name: Ensure SELinux file contexts for Nix
+          ansible.builtin.command:
+            cmd: "semanage fcontext -a -t {{ item.setype }} '{{ item.target }}'"
+          loop: "{{ nix_semanage_rules }}"
+          when: "'{{ item.target }}' not in semanage_check.stdout"
+          changed_when: true
 
-        - name: Ensure SELinux is enforcing again
-          ansible.builtin.command: setenforce 1
-          when: ansible_selinux.status == "enabled"
-          changed_when: false  # Only runs if necessary
-
-    - name: Enable Nix flakes and commands globally
+    - name: Configure SELinux policies
       become: true
-      ansible.builtin.lineinfile:
-        path: "{{ nix_conf_path }}"
-        line: "experimental-features = nix-command flakes"
-        create: true
-        mode: '0644'
-        owner: root
-        group: root
+      block:
+        - name: Check if SELinux policy is already installed
+          ansible.builtin.command: semodule -l
+          register: semodule_list
+          changed_when: false
 
-    - name: Enable and restart Nix daemon
-      become: true
-      ansible.builtin.systemd:
-        name: nix-daemon.service
-        state: restarted
-        enabled: true
+        - name: Install SELinux policy if not present
+          when: nix_selinux_policy_name not in semodule_list.stdout
+          block:
+            - name: Copy Nix SELinux policy template
+              ansible.builtin.template:
+                src: selinux_nix.te
+                dest: "/etc/selinux/{{ nix_selinux_policy_name }}.te"
+                mode: '0644'
 
-    - name: Verify Nix installation
-      ansible.builtin.command: nix --version
-      changed_when: false
+            - name: Compile SELinux policy
+              ansible.builtin.command: >
+                checkmodule -M -m -o /etc/selinux/{{ nix_selinux_policy_name }}.mod /etc/selinux/{{ nix_selinux_policy_name }}.te
+              args:
+                creates: "/etc/selinux/{{ nix_selinux_policy_name }}.mod"
+
+            - name: Create SELinux policy package
+              ansible.builtin.command: >
+                semodule_package -o /etc/selinux/{{ nix_selinux_policy_name }}.pp -m /etc/selinux/{{ nix_selinux_policy_name }}.mod
+              args:
+                creates: "/etc/selinux/{{ nix_selinux_policy_name }}.pp"
+
+            - name: Apply SELinux policy
+              ansible.builtin.command: semodule -i /etc/selinux/{{ nix_selinux_policy_name }}.pp
+              changed_when: true
+
+    #     - name: Restore SELinux labels for /nix
+    #       ansible.builtin.command: restorecon -R /nix
+    #       changed_when: false  # Ensure idempotency
+
+    #     - name: Ensure SELinux is enforcing again
+    #       ansible.builtin.command: setenforce 1
+    #       when: ansible_selinux.status == "enabled"
+    #       changed_when: false  # Only runs if necessary
+
+    # - name: Enable Nix flakes and commands globally
+    #   become: true
+    #   ansible.builtin.lineinfile:
+    #     path: "{{ nix_conf_path }}"
+    #     line: "experimental-features = nix-command flakes"
+    #     create: true
+    #     mode: '0644'
+    #     owner: root
+    #     group: root
+
+    # - name: Enable and restart Nix daemon
+    #   become: true
+    #   ansible.builtin.systemd:
+    #     name: nix-daemon.service
+    #     state: restarted
+    #     enabled: true
+
+    # - name: Verify Nix installation
+    #   ansible.builtin.command: nix --version
+    #   changed_when: false
