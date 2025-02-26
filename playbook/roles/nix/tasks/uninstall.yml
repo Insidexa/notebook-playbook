@@ -14,17 +14,47 @@
         - nix-daemon.service
         - nix-daemon.socket
 
-    - name: Check if backup files exist
+    - name: Check if backup and original files exist
       ansible.builtin.stat:
-        path: "{{ item.backup }}"
-      loop: "{{ nix_bash_changes }}"
-      register: backup_stat
+        path: "{{ item }}"
+      loop: "{{ nix_bash_changes | map(attribute='backup') | list + nix_bash_changes | map(attribute='original') | list }}"
+      register: file_stats
 
-    - name: Restore backup files if they exist
-      ansible.builtin.command:
-        cmd: mv "{{ item.item.backup }}" "{{ item.item.original }}"
-      when: item.stat.exists
-      loop: "{{ backup_stat.results }}"
+    - name: Prepare structured file information
+      ansible.builtin.set_fact:
+        backup_stat: "{{ file_stats.results[: nix_bash_changes | length] }}"
+        original_stat: "{{ file_stats.results[nix_bash_changes | length: ] }}"
+
+    - name: Restore original files from backup if they exist
+      ansible.builtin.copy:
+        src: "{{ item.backup }}"
+        dest: "{{ item.original }}"
+        remote_src: true
+        mode: "{{ original_stat[index].stat.mode | default('preserve') }}"
+      when: backup_stat[index].stat.exists
+      loop: "{{ nix_bash_changes }}"
+      loop_control:
+        index_var: index
+
+    - name: Restore original file permissions
+      ansible.builtin.file:
+        path: "{{ item.original }}"
+        mode: "{{ original_stat[index].stat.mode | default(omit) }}"
+        owner: "{{ original_stat[index].stat.pw_name | default(omit) }}"
+        group: "{{ original_stat[index].stat.gr_name | default(omit) }}"
+      when: original_stat[index].stat.exists
+      loop: "{{ nix_bash_changes }}"
+      loop_control:
+        index_var: index
+
+    - name: Delete backup files
+      ansible.builtin.file:
+        path: "{{ item.backup }}"
+        state: absent
+      when: backup_stat[index].stat.exists
+      loop: "{{ nix_bash_changes }}"
+      loop_control:
+        index_var: index
 
     - name: Check if Nix SELinux policy is installed
       ansible.builtin.command: semodule -l
@@ -66,6 +96,7 @@
         name: "nixbld{{ item }}"
         state: absent
         remove: true
+        force: true
       when: "'nixbld' ~ item in ansible_facts.getent_passwd"
       loop: "{{ range(1, 33) | list }}"
       loop_control:

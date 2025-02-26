@@ -48,7 +48,7 @@
           ansible.builtin.command:
             cmd: "semanage fcontext -a -t {{ item.setype }} '{{ item.target }}'"
           loop: "{{ nix_semanage_rules }}"
-          when: "'{{ item.target }}' not in semanage_check.stdout"
+          when: "item.target not in semanage_check.stdout"
           changed_when: true
 
     - name: Configure SELinux policies
