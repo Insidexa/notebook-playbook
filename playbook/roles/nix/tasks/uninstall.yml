@@ -14,11 +14,17 @@
         - nix-daemon.service
         - nix-daemon.socket
 
+    - name: Check if backup files exist
+      ansible.builtin.stat:
+        path: "{{ item.backup }}"
+      loop: "{{ nix_bash_changes }}"
+      register: backup_stat
+
     - name: Restore backup files if they exist
       ansible.builtin.command:
         cmd: mv "{{ item.item.backup }}" "{{ item.item.original }}"
       when: item.stat.exists
-      loop: "{{ query('ansible.builtin.stat', nix_bash_changes | map(attribute='backup')) }}"
+      loop: "{{ backup_stat.results }}"
 
     - name: Check if Nix SELinux policy is installed
       ansible.builtin.command: semodule -l
