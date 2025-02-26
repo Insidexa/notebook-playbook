@@ -103,23 +103,35 @@
       register: selinux_enforce
       changed_when: "'Enforcing' not in selinux_enforce.stdout"
 
-    # - name: Enable Nix flakes and commands globally
-    #   become: true
-    #   ansible.builtin.lineinfile:
-    #     path: "{{ nix_conf_path }}"
-    #     line: "experimental-features = nix-command flakes"
-    #     create: true
-    #     mode: '0644'
-    #     owner: root
-    #     group: root
+    - name: Enable Nix flakes and commands globally
+      become: true
+      ansible.builtin.lineinfile:
+        path: "{{ nix_conf_path }}"
+        line: "experimental-features = nix-command flakes"
+        create: true
+        mode: '0644'
+        owner: root
+        group: root
 
-    # - name: Enable and restart Nix daemon
-    #   become: true
-    #   ansible.builtin.systemd:
-    #     name: nix-daemon.service
-    #     state: restarted
-    #     enabled: true
+    - name: Enable and restart Nix daemon
+      become: true
+      ansible.builtin.systemd:
+        name: nix-daemon.service
+        state: restarted
+        enabled: true
 
-    # - name: Verify Nix installation
-    #   ansible.builtin.command: nix --version
-    #   changed_when: false
+    - name: Add Nix unstable
+      ansible.builtin.command: |
+        . /etc/profile.d/nix.sh
+
+        nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
+        nix-channel --update nixpkgs
+      changed_when: false
+
+    - name: Verify Nix installation
+      ansible.builtin.command: |
+        . /etc/profile.d/nix.sh
+        nix --version
+
+        nix-shell --packages nodejs --run "node -v"
+      changed_when: false
