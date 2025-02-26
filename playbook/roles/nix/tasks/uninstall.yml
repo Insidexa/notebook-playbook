@@ -41,9 +41,14 @@
         path: "{{ nix_selinux_policy_file }}"
         state: absent
 
+    - name: Check if /nix exists
+      ansible.builtin.stat:
+        path: /nix
+      register: nix_stat
+
     - name: Relabel /nix filesystem to default if it exists
       ansible.builtin.command: restorecon -R /nix
-      when: nix_files | length > 0
+      when: nix_stat.stat.exists
       changed_when: false
 
     - name: Remove Nix directories if they exist
