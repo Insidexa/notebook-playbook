@@ -1,4 +1,4 @@
 ---
-- name: Set Docker detection fact
+- name: Set SELinux status fact
   ansible.builtin.set_fact:
-    run_under_docker: "{{ ansible_facts['virtualization_type'] == 'docker' }}"
+    is_selinux_enabled: "{{ ansible_facts['selinux']['status'] == 'enabled' }}"
