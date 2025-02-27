@@ -14,8 +14,9 @@
       ansible.builtin.user:
         name: "{{ ansible_user_id }}"
         shell: "{{ zsh_binary }}"
+      changed_when: false
 
-- name: Is ZSH installed
+- name: Check if OMZ is installed
   ansible.builtin.stat:
     path: "{{ user_home }}/{{ oh_my_zsh_dir }}"
   register: omz_path
@@ -41,7 +42,7 @@
     - name: Install OMZ
       ansible.builtin.command: "{{ oh_my_zsh_install_script.path }} --unattended"
       register: install_omz_output
-      changed_when: install_omz_output.rc != 0
+      changed_when: install_omz_output.rc == 0
 
     - name: Remove the temporary file
       ansible.builtin.file:
@@ -53,20 +54,24 @@
   tags:
     - install
   block:
+    - name: Check if .zshrc exists
+      ansible.builtin.stat:
+        path: "{{ user_home }}/.zshrc"
+      register: zshrc_file
+
     - name: Write .zshrc
       ansible.builtin.template:
         src: .zshrc.j2
         dest: "{{ user_home }}/.zshrc"
         mode: u=rw,go=r
         force: false
+      when: not zshrc_file.stat.exists
 
-    - name: Add $HOME/.local/bin to zsh
-      ansible.builtin.blockinfile:
-        block: |
-          export PATH="$PATH:$HOME/{{ local_bin_dir }}/"
-        create: true
-        marker_begin: LOCAL BINARY START
-        marker_end: LOCAL BINARY END
-        mode: "0644"
+    - name: Check if local bin path exists in .zshrc
+      ansible.builtin.lineinfile:
         path: "{{ user_home }}/.zshrc"
+        regexp: "^export PATH=\"\\$PATH:\\$HOME/{{ local_bin_dir }}/\""
+        line: 'export PATH="$PATH:$HOME/{{ local_bin_dir }}/"'
         state: present
+        mode: "0644"
+        create: true

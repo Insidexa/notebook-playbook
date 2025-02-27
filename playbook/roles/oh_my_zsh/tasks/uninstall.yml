@@ -3,11 +3,26 @@
   tags:
     - uninstall
   block:
+    - name: Get current shell
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          getent passwd {{ ansible_user_id }} | cut -d: -f7
+        executable: /bin/bash
+      register: current_shell
+      changed_when: false
+
     - name: Set Bash as default shell
       become: true
       ansible.builtin.user:
         name: "{{ ansible_user_id }}"
         shell: /bin/bash
+      when: current_shell.stdout != '/bin/bash'
+
+    - name: Check if OMZ directory exists
+      ansible.builtin.stat:
+        path: "{{ user_home }}/{{ oh_my_zsh_dir }}"
+      register: omz_dir
 
     - name: Remove OMZ
       ansible.builtin.file:
@@ -15,16 +30,24 @@
         state: absent
       with_items:
         - "{{ oh_my_zsh_dir }}"
+      when: omz_dir.stat.exists
+
+    - name: Check for unused files
+      ansible.builtin.stat:
+        path: "{{ user_home }}/{{ item }}"
+      register: unused_files
+      with_items:
+        # - .zsh_history
+        - .zshrc.pre-oh-my-zsh
+        - .zshrc
 
     - name: Remove unused files
       ansible.builtin.file:
-        path: "{{ user_home }}/{{ item }}"
+        path: "{{ user_home }}/{{ item.item }}"
         state: absent
         force: true
-      with_items:
-        - .zsh_history
-        - .zshrc.pre-oh-my-zsh
-        - .zshrc
+      with_items: "{{ unused_files.results }}"
+      when: item.stat.exists
 
     - name: Find files matching multiple wildcard patterns
       ansible.builtin.find:
@@ -39,12 +62,23 @@
         path: "{{ item.path }}"
         state: absent
       loop: "{{ file_patterns_to_delete.files }}"
+      when: file_patterns_to_delete.matched > 0
+
+    - name: Check if ZSH is installed
+      ansible.builtin.package_facts:
+        manager: auto
 
     - name: Uninstall ZSH
       become: true
       ansible.builtin.package:
         name: zsh
         state: absent
+      when: "'zsh' in ansible_facts.packages"
+
+    - name: Check if /usr/share/zsh exists
+      ansible.builtin.stat:
+        path: /usr/share/zsh
+      register: zsh_share_dir
 
     - name: Remove /usr/share/zsh
       become: true
@@ -54,3 +88,4 @@
         force: true
       with_items:
         - /usr/share/zsh
+      when: zsh_share_dir.stat.exists
