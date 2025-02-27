@@ -2,8 +2,10 @@
 - name: Install & Uninstall
   hosts: localhost
   gather_facts: true
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
+  pre_tasks:
+    - name: Include pre-tasks
+      ansible.builtin.import_tasks: tasks/pre.yml
+      tags: always
 
   roles:
     # priority
