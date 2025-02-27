@@ -1,0 +1,4 @@
+---
+- name: Set Docker detection fact
+  ansible.builtin.set_fact:
+    run_under_docker: "{{ ansible_facts['virtualization_type'] == 'docker' }}"

@@ -3,7 +3,14 @@
   tags:
     - install
   block:
-    - name: Via package manager
+    - name: Install one-time packages
+      become: true
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ common_persistent_packages }}"
+
+    - name: Install app deps packages
       become: true
       ansible.builtin.package:
         name: "{{ item }}"

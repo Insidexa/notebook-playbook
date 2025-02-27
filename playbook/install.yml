@@ -2,34 +2,40 @@
 - name: Install & Uninstall
   hosts: localhost
   gather_facts: true
+  pre_tasks:
+    - name: Include pre-tasks
+      ansible.builtin.import_tasks: tasks/pre.yml
+      tags: always
 
   roles:
     - role: common
 
-    - role: slack
+    # - role: slack
 
     - role: oh_my_zsh
 
-    - role: awscli
-      become: true
+    - role: nix
 
-    - role: nvm
+    # - role: awscli
+    #   become: true
 
-    - role: pyenv
+    # - role: nvm
 
-    - role: kubectl
-      become: true
+    # - role: pyenv
 
-    - role: podman_compose
+    # - role: kubectl
+    #   become: true
 
-    - role: awscdk
+    # - role: podman_compose
 
-    - role: helm
-      become: true
+    # - role: awscdk
 
-    - role: tfenv
+    # - role: helm
+    #   become: true
 
-    - role: terragrunt
+    # - role: tfenv
+
+    # - role: terragrunt
 
     - role: visual_studio_code
       vars:

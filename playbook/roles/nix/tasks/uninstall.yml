@@ -1,0 +1,113 @@
+---
+- name: Uninstall Nix
+  become: true
+  tags:
+    - uninstall
+  block:
+    - name: Stop and disable Nix systemd services if they exist
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      failed_when: false  # Prevent failures if services are already removed
+      loop:
+        - nix-daemon.service
+        - nix-daemon.socket
+
+    - name: Check if backup and original files exist
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop: "{{ nix_bash_changes | map(attribute='backup') | list + nix_bash_changes | map(attribute='original') | list }}"
+      register: file_stats
+
+    - name: Prepare structured file information
+      ansible.builtin.set_fact:
+        backup_stat: "{{ file_stats.results[: nix_bash_changes | length] }}"
+        original_stat: "{{ file_stats.results[nix_bash_changes | length :] }}"
+
+    - name: Restore original files from backup if they exist
+      ansible.builtin.copy:
+        src: "{{ item.backup }}"
+        dest: "{{ item.original }}"
+        remote_src: true
+        mode: "{{ original_stat[index].stat.mode | default('preserve') }}"
+      when: backup_stat[index].stat.exists
+      loop: "{{ nix_bash_changes }}"
+      loop_control:
+        index_var: index
+
+    - name: Restore original file permissions
+      ansible.builtin.file:
+        path: "{{ item.original }}"
+        mode: "{{ original_stat[index].stat.mode | default(omit) }}"
+        owner: "{{ original_stat[index].stat.pw_name | default(omit) }}"
+        group: "{{ original_stat[index].stat.gr_name | default(omit) }}"
+      when: original_stat[index].stat.exists
+      loop: "{{ nix_bash_changes }}"
+      loop_control:
+        index_var: index
+
+    - name: Delete backup files
+      ansible.builtin.file:
+        path: "{{ item.backup }}"
+        state: absent
+      when: backup_stat[index].stat.exists
+      loop: "{{ nix_bash_changes }}"
+      loop_control:
+        index_var: index
+
+    - name: Check if Nix SELinux policy is installed
+      ansible.builtin.command: semodule -l
+      register: semodule_list
+      changed_when: false
+
+    - name: Remove SELinux Nix policy if installed
+      ansible.builtin.command: semodule -r {{ nix_selinux_policy_name }}
+      when: nix_selinux_policy_name in semodule_list.stdout
+      changed_when: true
+
+    - name: Delete SELinux policy file if it exists
+      ansible.builtin.file:
+        path: "{{ nix_selinux_policy_file }}"
+        state: absent
+
+    - name: Check if /nix exists
+      ansible.builtin.stat:
+        path: /nix
+      register: nix_stat
+
+    - name: Relabel /nix filesystem to default if it exists
+      ansible.builtin.command: restorecon -R /nix
+      when: nix_stat.stat.exists
+      changed_when: false
+
+    - name: Remove Nix directories if they exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop: "{{ nix_files }}"
+
+    - name: Gather system users
+      ansible.builtin.getent:
+        database: passwd
+
+    - name: Delete nixbld users if they exist
+      ansible.builtin.user:
+        name: "nixbld{{ item }}"
+        state: absent
+        remove: true
+        force: true
+      when: "'nixbld' ~ item in ansible_facts.getent_passwd"
+      loop: "{{ range(1, 33) | list }}"
+      loop_control:
+        label: "nixbld{{ item }}"
+
+    - name: Gather system groups
+      ansible.builtin.getent:
+        database: group
+
+    - name: Delete nixbld group if it exists
+      ansible.builtin.group:
+        name: nixbld
+        state: absent
+      when: "'nixbld' in ansible_facts.getent_group"
